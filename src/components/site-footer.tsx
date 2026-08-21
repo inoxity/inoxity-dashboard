@@ -14,18 +14,21 @@ export function SiteFooter() {
         <InoxityMark />
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/inoxity/inoxity-dashboard"
+            href="https://github.com/inoxity"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 hover:text-foreground"
-            aria-label="Inoxity Dashboard on GitHub"
+            aria-label="Inoxity on GitHub"
           >
             <Code2 className="size-4" />
             GitHub
           </a>
+          {/* Visible address, not just an icon+label, so it's still usable
+              (readable/copyable) for anyone without a default mail client
+              configured — a plain mailto: click does nothing visible there. */}
           <a href="mailto:inoxity.team@gmail.com" className="flex items-center gap-1.5 hover:text-foreground">
             <Mail className="size-4" />
-            Contact support
+            inoxity.team@gmail.com
           </a>
         </div>
       </div>

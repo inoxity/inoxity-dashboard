@@ -6,9 +6,11 @@ export const metadata = {
 
 // Fleshed out from the earlier placeholder with real detail, but still no
 // editor/backend behind it — just a page to keep expanding over time. The
-// full reference docs live in the inoxity repo's docs.html (published via
-// GitHub Pages); this page covers dashboard-specific basics and links out
-// to that for anything deeper.
+// full reference docs are served statically from this repo (public/docs.html,
+// updated for the current v2 architecture) rather than the old inoxity_v1
+// repo's GitHub Pages site, which went private when that repo was archived;
+// this page covers dashboard-specific basics and links out to that for
+// anything deeper.
 export default function DocsPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-16">
@@ -20,7 +22,7 @@ export default function DocsPage() {
           The basics for running a study from this dashboard. For the full architecture and troubleshooting
           reference, see the{" "}
           <a
-            href="https://cogcommscience-lab.github.io/inoxity/docs.html"
+            href="/docs.html"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"
