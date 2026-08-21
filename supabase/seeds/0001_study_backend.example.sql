@@ -1,0 +1,8 @@
+-- ================================================================
+-- OBSOLETE — superseded by inoxity_v2/supabase/control_backend/migrations/
+-- 007_data_backend_in_json.sql, which drops the `study_backends` table.
+-- A study's own Supabase project URL/anon key now live inside
+-- `studies.configuration_json.dataBackend`, entered via the dashboard
+-- wizard's "Data Backend" step — there is no separate table to seed.
+-- Kept only as a historical record of what this project used to do.
+-- ================================================================

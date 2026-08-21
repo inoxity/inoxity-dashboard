@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 8,
+  "identity": { "id": "sleep-cognition-v2", "code": "SLEEP01", "displayName": "Sleep & Cognitive Performance Study", "shortName": "Sleep Study", "welcomeTitle": "Rest, reflect, and learn", "welcomeMessage": "Help us understand how everyday sleep relates to attention and wellbeing." },
+  "status": { "state": "active", "message": null },
+  "schedule": { "startDate": "2025-01-01", "endDate": "2035-12-31", "timeZone": "America/Los_Angeles", "openEnded": false, "participantDurationDays": null, "startDateMode": "enrollment" },
+  "participantID": { "label": "SONA ID", "prompt": "Enter your SONA ID", "placeholder": "e.g. 123456", "helpText": "Use the numeric ID associated with your research participation account.", "required": true, "minimumLength": 1, "maximumLength": 6, "allowedPattern": "^[0-9]{1,6}$" },
+  "onboarding": { "pages": [
+    { "id": "sleep-purpose", "title": "Your sleep tells a story", "body": "Daily check-ins and future Apple Health data will help the team study patterns over time.", "symbol": "moon.stars", "enabled": true },
+    { "id": "sleep-privacy", "title": "You stay in control", "body": "Phase 1 stores only your enrollment choices on this device. No participant data is uploaded.", "symbol": "lock.shield", "enabled": true }
+  ] },
+  "healthKit": { "enabled": true, "rationale": "With your permission, this study reads sleep analysis and resting heart rate from Apple Health for a limited summary stored on this device.", "identifiers": ["sleepAnalysis", "restingHeartRate"], "backfillDays": 30, "includeCharacteristics": false },
+  "notifications": { "enabled": true, "rationale": "Optional reminders can let you know when an Inoxity activity is available." },
+  "sleepSchedule": null,
+  "surveys": [{ "id": "morning-checkin", "enabled": true, "name": "Morning check-in", "description": "A short reflection on last night’s sleep.", "url": "https://example.edu/sleep-study/surveys/morning", "presentationMode": "inAppBrowser", "schedule": { "pattern": "daily", "date": null, "hour": 9, "minute": 0, "weekdays": [], "anchor": "clockTime", "offsetMinutes": null }, "availabilityWindow": { "opensMinutesBefore": 180, "closesMinutesAfter": 180 }, "completionCallback": { "enabled": true }, "instructions": "Open the secure external survey during its availability window.", "privacyText": "Inoxity does not read or store your survey responses.", "activeStartDate": "2025-01-01", "activeEndDate": "2035-12-31", "sendNotificationOnOpen": false, "notificationTitle": null, "notificationBody": null, "promptExpirationMinutes": null }],
+  "reminders": [{ "id": "morning-reminder", "title": "Inoxity reminder", "body": "An Inoxity activity is available.", "enabled": true, "kind": "survey", "surveyID": "morning-checkin", "schedule": null, "notifyMinutesBefore": 0, "destination": "surveys", "activeStartDate": "2025-01-01", "activeEndDate": "2035-12-31" }],
+  "features": { "surveysEnabled": true, "sleepSummaryEnabled": true, "mediaUploadsEnabled": true, "streaksEnabled": false, "visibleTabs": ["home", "surveys", "sleep", "media", "about", "settings"] },
+  "media": { "enabled": true, "instructions": "Choose photos of your sleep environment when requested. Items remain local in this prototype until you explicitly add them to the local queue.", "privacyText": "Selected media remains on this device and is not uploaded in this version.", "acceptedTypes": ["photo"], "maximumTotalItems": 3, "maximumFileSizeMB": 10, "maximumVideoLengthSeconds": null, "required": false, "activeStartDate": "2025-01-01", "activeEndDate": "2035-12-31", "categories": [{ "id": "sleep-environment", "displayName": "Sleep Environment", "description": "Photos related to your sleep environment.", "acceptedTypes": ["photo"], "required": false, "maximumItems": 3, "representedDateRequired": true }] },
+  "support": { "name": "Sleep Study Team", "email": "sleepstudy@example.edu", "phone": null, "website": "https://example.edu/sleep-study" },
+  "faqs": [{ "id": "sleep-data", "question": "Is health data uploaded?", "answer": "No. This version reads only a limited local Apple Health summary and does not upload health data." }, { "id": "sleep-help", "question": "What if I forget a check-in?", "answer": "You can contact the Sleep Study Team for guidance." }],
+  "completion": { "title": "Thank you for taking part", "message": "The study team will share completion guidance when your participation ends.", "redirectURL": null, "appAccessRemainsAvailable": true },
+  "dataBackend": null
+}
