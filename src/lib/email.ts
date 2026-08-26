@@ -72,18 +72,21 @@ export async function sendStudyInviteEmail(args: {
     to: args.to,
     subject: `${args.inviterName} invited you to ${args.studyDisplayName} on Inoxity`,
     html: `
-      <div style="font-family: -apple-system, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
-        <h1 style="font-size: 18px; font-weight: 500;">You've been invited to a study on Inoxity</h1>
-        <p style="font-size: 14px; line-height: 1.6;">
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;">
+        <p style="font-size:13px;font-weight:700;letter-spacing:0.15em;color:#6b8683;margin:0 0 32px;text-transform:uppercase;">
+          Inoxity
+        </p>
+        <h1 style="font-size:28px;font-weight:700;color:#111;margin:0 0 20px;">You've been invited to a study</h1>
+        <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 28px;">
           <strong>${escapeHtml(args.inviterName)}</strong> invited you to join
           <strong>${escapeHtml(args.studyDisplayName)}</strong> as ${roleLabel}.
         </p>
-        <p style="margin: 24px 0;">
-          <a href="${args.acceptUrl}" style="background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px;">
+        <p style="margin:0 0 28px;">
+          <a href="${args.acceptUrl}" style="display:inline-block;padding:14px 28px;background:#211129;color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:15px;">
             View invite
           </a>
         </p>
-        <p style="font-size: 12px; color: #666;">
+        <p style="font-size:13px;color:#8a8a8a;margin:0;">
           If you weren't expecting this, you can safely ignore this email.
         </p>
       </div>
