@@ -14,6 +14,8 @@ export const metadata = {
 const ERROR_MESSAGES: Record<string, string> = {
   "auth-callback-failed":
     "Your account is confirmed, but that link couldn't automatically sign you in — sign in below to continue.",
+  "confirmation-failed":
+    "That link is invalid or has expired. Sign in below — if your account still needs confirming, you'll be able to resend the email from there.",
 };
 
 export default async function LoginPage({
