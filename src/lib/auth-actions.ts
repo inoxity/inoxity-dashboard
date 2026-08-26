@@ -5,6 +5,23 @@ import { createClient } from "@/lib/supabase/server";
 import { getSiteOrigin } from "@/lib/site-origin";
 import type { AuthActionState } from "@/lib/auth-state";
 
+// Supabase throttles in two different ways with two different message
+// shapes: an overall send-volume cap ("email rate limit exceeded") and a
+// per-address cooldown between individual requests ("For security purposes,
+// you can only request this after 58 seconds.") — the latter doesn't
+// contain the words "rate limit" at all, so a plain substring check on
+// that alone silently misses it and falls through to a generic error.
+function isRateLimited(message: string): boolean {
+  return /rate limit|you can only request this after/i.test(message);
+}
+
+function rateLimitMessage(message: string): string {
+  const match = message.match(/after (\d+) seconds?/i);
+  return match
+    ? `Too many attempts right now — please wait ${match[1]} seconds and try again.`
+    : "Too many attempts right now — please wait a bit and try again.";
+}
+
 function mapAuthError(message: string): string {
   if (message.includes("Invalid login credentials")) {
     return "Incorrect email or password.";
@@ -12,8 +29,8 @@ function mapAuthError(message: string): string {
   if (message.includes("Email not confirmed")) {
     return "Please confirm your email first — check your inbox for the confirmation link.";
   }
-  if (message.toLowerCase().includes("rate limit")) {
-    return "Too many attempts right now — please wait a bit and try again.";
+  if (isRateLimited(message)) {
+    return rateLimitMessage(message);
   }
   return "Something went wrong. Please try again.";
 }
@@ -95,6 +112,9 @@ export async function login(
 
   if (error) {
     console.error("[login]", error.status, error.message);
+    if (error.message.includes("Email not confirmed")) {
+      return { error: mapAuthError(error.message), unconfirmedEmail: email };
+    }
     return { error: mapAuthError(error.message) };
   }
 
@@ -119,10 +139,8 @@ export async function requestPasswordReset(
 
   if (error) {
     console.error("[requestPasswordReset]", error.status, error.message);
-    if (error.message.toLowerCase().includes("rate limit")) {
-      return {
-        error: "Too many attempts right now — please wait a bit and try again.",
-      };
+    if (isRateLimited(error.message)) {
+      return { error: rateLimitMessage(error.message) };
     }
   }
 
@@ -166,29 +184,33 @@ export async function signOut() {
 }
 
 export async function resendConfirmationEmail(
-  // Signature is fixed by useActionState — this action needs neither arg,
-  // it just re-sends to the signed-in user's own address.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevState: AuthActionState,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _formData: FormData
+  formData: FormData
 ): Promise<AuthActionState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user?.email) {
-    return { error: "You need to be signed in to resend a confirmation email." };
+  // Called from two different places: the login form (no session yet —
+  // Supabase blocks signInWithPassword() for unconfirmed accounts before a
+  // session exists, so the email has to come from the form) and the
+  // dashboard's EmailConfirmationBanner (already has a session, no form
+  // field to read).
+  const formEmail = String(formData.get("email") ?? "").trim();
+  let email = formEmail;
+  if (!email) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    email = user?.email ?? "";
   }
-  if (user.email_confirmed_at) {
-    return { error: "This email is already confirmed." };
+
+  if (!email) {
+    return { error: "You need to be signed in, or enter your email, to resend a confirmation email." };
   }
 
   const origin = await getSiteOrigin();
   const { error } = await supabase.auth.resend({
     type: "signup",
-    email: user.email,
+    email,
     // Same reasoning as signup()'s emailRedirectTo above — without this the
     // link falls back to the Site URL instead of /auth/callback.
     options: { emailRedirectTo: `${origin}/auth/callback?next=/dashboard` },
@@ -196,8 +218,11 @@ export async function resendConfirmationEmail(
 
   if (error) {
     console.error("[resendConfirmationEmail]", error.status, error.message);
-    if (error.message.toLowerCase().includes("rate limit")) {
-      return { error: "Too many attempts right now — please wait a bit and try again." };
+    if (isRateLimited(error.message)) {
+      return { error: rateLimitMessage(error.message) };
+    }
+    if (error.message.toLowerCase().includes("already confirmed")) {
+      return { error: "This email is already confirmed — try signing in." };
     }
     return { error: "Something went wrong sending the email. Please try again." };
   }
