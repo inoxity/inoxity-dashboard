@@ -219,8 +219,9 @@ export async function setStudyActive(
   const enrollmentOpensAt = formData.get("enrollmentOpensAt");
   const enrollmentClosesAt = formData.get("enrollmentClosesAt");
 
-  // Not destructuring `user` — see the same note in updateDraftStudy above.
-  const { supabase } = await requireUser();
+  // Unlike updateDraftStudy, we do need `user` here — see the
+  // email_confirmed_at check below.
+  const { supabase, user } = await requireUser();
 
   const { data: study, error: fetchError } = await supabase
     .from("studies")
@@ -233,6 +234,16 @@ export async function setStudyActive(
   }
 
   if (active) {
+    // Sign-in itself isn't gated on email confirmation (institutional mail,
+    // .edu especially, can silently swallow the confirmation email through
+    // no fault of the user's — see EmailConfirmationBanner), so this is the
+    // actual enforcement point: no participant-facing activation until the
+    // account's email is confirmed.
+    if (!user.email_confirmed_at) {
+      return {
+        error: "Confirm your email address before activating a study — check your inbox, or resend the link from the banner at the top of the dashboard.",
+      };
+    }
     const config = study.configuration_json as StudyConfiguration;
     if (!config.dataBackend?.enabled) {
       return {

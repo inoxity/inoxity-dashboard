@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardNav } from "@/components/dashboard-nav";
+import { EmailConfirmationBanner } from "@/components/dashboard/email-confirmation-banner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +35,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardNav />
+      {!user.email_confirmed_at && (
+        <div className="mx-auto w-full max-w-4xl px-4 pt-6">
+          <EmailConfirmationBanner />
+        </div>
+      )}
       {pendingInvites && pendingInvites.length > 0 && (
         <div className="mx-auto w-full max-w-4xl px-4 pt-6">
           <Alert>

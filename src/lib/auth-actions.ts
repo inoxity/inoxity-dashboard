@@ -164,3 +164,43 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function resendConfirmationEmail(
+  // Signature is fixed by useActionState — this action needs neither arg,
+  // it just re-sends to the signed-in user's own address.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _prevState: AuthActionState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _formData: FormData
+): Promise<AuthActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) {
+    return { error: "You need to be signed in to resend a confirmation email." };
+  }
+  if (user.email_confirmed_at) {
+    return { error: "This email is already confirmed." };
+  }
+
+  const origin = await getSiteOrigin();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: user.email,
+    // Same reasoning as signup()'s emailRedirectTo above — without this the
+    // link falls back to the Site URL instead of /auth/callback.
+    options: { emailRedirectTo: `${origin}/auth/callback?next=/dashboard` },
+  });
+
+  if (error) {
+    console.error("[resendConfirmationEmail]", error.status, error.message);
+    if (error.message.toLowerCase().includes("rate limit")) {
+      return { error: "Too many attempts right now — please wait a bit and try again." };
+    }
+    return { error: "Something went wrong sending the email. Please try again." };
+  }
+
+  return { error: null, success: true };
+}
