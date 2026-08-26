@@ -6,6 +6,7 @@ import { signup } from "@/lib/auth-actions";
 import { authInitialState } from "@/lib/auth-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
 
@@ -42,10 +43,9 @@ export function SignupForm() {
 
         <Field>
           <FieldLabel htmlFor="password">Password *</FieldLabel>
-          <Input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             required
             minLength={8}
             autoComplete="new-password"

@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import { changePassword } from "@/lib/settings-actions";
 import { authInitialState } from "@/lib/auth-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -23,11 +23,11 @@ export function PasswordForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="password">New password</FieldLabel>
-          <Input id="password" name="password" type="password" autoComplete="new-password" required />
+          <PasswordInput id="password" name="password" autoComplete="new-password" required />
         </Field>
         <Field>
           <FieldLabel htmlFor="confirmPassword">Confirm new password</FieldLabel>
-          <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+          <PasswordInput id="confirmPassword" name="confirmPassword" autoComplete="new-password" required />
         </Field>
 
         {state.error && (

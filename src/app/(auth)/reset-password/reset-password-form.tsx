@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { resetPassword } from "@/lib/auth-actions";
 import { authInitialState } from "@/lib/auth-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Field,
@@ -24,10 +24,9 @@ export function ResetPasswordForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="password">New password</FieldLabel>
-          <Input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             required
             minLength={8}
             autoComplete="new-password"
@@ -39,10 +38,9 @@ export function ResetPasswordForm() {
           <FieldLabel htmlFor="confirmPassword">
             Confirm new password
           </FieldLabel>
-          <Input
+          <PasswordInput
             id="confirmPassword"
             name="confirmPassword"
-            type="password"
             required
             minLength={8}
             autoComplete="new-password"
