@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABELS, type CollaboratorRole } from "@/lib/supabase/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AcceptInviteForm } from "./accept-invite-form";
+import { InviteActions } from "./invite-actions";
 
 export const metadata = {
   title: "Study Invite — Inoxity",
@@ -69,7 +69,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
               </div>
             </>
           ) : (
-            <AcceptInviteForm token={token} />
+            <InviteActions token={token} studyDisplayName={invite.study_display_name} />
           )}
         </CardContent>
       </Card>

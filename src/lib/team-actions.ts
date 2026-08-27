@@ -195,3 +195,25 @@ export async function acceptStudyInvite(
   revalidatePath("/dashboard/team");
   redirect(`/dashboard/studies/${studyId}`);
 }
+
+export async function declineStudyInvite(
+  _prevState: TeamActionState,
+  formData: FormData,
+): Promise<TeamActionState> {
+  const token = String(formData.get("token") ?? "");
+  // No requireUser() redirect — the invite page already gates this form
+  // behind a signed-in check before rendering it (same reasoning as
+  // acceptStudyInvite above). Deliberately no redirect() either: the
+  // invite row is gone after this succeeds, so re-fetching the invite
+  // preview for this token would 404 — the caller shows an inline
+  // confirmation instead of navigating anywhere.
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("decline_study_invite", { p_token: token });
+
+  if (error) {
+    return { error: mapTeamError(error) };
+  }
+
+  return { error: null, success: true };
+}
