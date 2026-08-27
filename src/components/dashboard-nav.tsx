@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { InoxityMark } from "@/components/inoxity-mark";
+import { signOut } from "@/lib/auth-actions";
+import { Button } from "@/components/ui/button";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -14,17 +17,14 @@ const LINKS = [
 
 export function DashboardNav() {
   const pathname = usePathname();
-
   return (
     <nav className="border-b border-border">
-      <div className="mx-auto flex w-full max-w-4xl items-center gap-6 overflow-x-auto px-4 py-3">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-4 overflow-x-auto px-4 py-3">
         <Link href="/dashboard" className="shrink-0">
           <InoxityMark />
         </Link>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-center gap-1">
           {LINKS.map((link) => {
-            // /dashboard itself needs an exact match — every other route
-            // under /dashboard would otherwise also match its prefix.
             const active = link.href === "/dashboard" ? pathname === link.href : pathname.startsWith(link.href);
             return (
               <Link
@@ -40,6 +40,12 @@ export function DashboardNav() {
             );
           })}
         </div>
+        <form action={signOut} className="justify-self-end">
+          <Button type="submit" variant="outline" size="sm" className="gap-1.5 rounded-full">
+            <LogOut className="size-3.5" />
+            Sign out
+          </Button>
+        </form>
       </div>
     </nav>
   );

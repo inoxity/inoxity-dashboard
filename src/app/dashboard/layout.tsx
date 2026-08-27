@@ -36,12 +36,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex min-h-screen flex-col">
       <DashboardNav />
       {!user.email_confirmed_at && (
-        <div className="mx-auto w-full max-w-4xl px-4 pt-6">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6">
           <EmailConfirmationBanner />
         </div>
       )}
       {pendingInvites && pendingInvites.length > 0 && (
-        <div className="mx-auto w-full max-w-4xl px-4 pt-6">
+        <div className="mx-auto w-full max-w-6xl px-4 pt-6">
           <Alert>
             <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
               <span>
