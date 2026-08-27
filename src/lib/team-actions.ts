@@ -6,7 +6,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/study-actions";
 import { getSiteOrigin } from "@/lib/site-origin";
-import { sendStudyInviteEmail } from "@/lib/email";
+import { sendStudyInviteEmail, sendRoleChangedEmail } from "@/lib/email";
 import type { TeamActionState } from "@/lib/team-action-state";
 import { COLLABORATOR_ROLES, type CollaboratorRole } from "@/lib/supabase/types";
 
@@ -125,14 +125,39 @@ export async function updateCollaboratorRole(
 
   const { supabase } = await requireUser();
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("study_collaborators")
     .update({ role, updated_at: new Date().toISOString() })
-    .eq("id", collaboratorId);
+    .eq("id", collaboratorId)
+    .select("study_id, invited_email")
+    .single();
 
   if (error) {
     return { error: mapTeamError(error) };
   }
+
+  // Best-effort — the role change itself already succeeded, so a failed
+  // notification shouldn't roll it back or surface as an error to the
+  // person who made the change (same reasoning as inviteCollaborator's
+  // fallbackAcceptUrl handling: delivery hiccups are reported separately
+  // from the write that already committed).
+  const { data: study } = await supabase
+    .from("studies")
+    .select("configuration_json, stable_study_id")
+    .eq("id", updated.study_id)
+    .single();
+  const studyDisplayName =
+    (study?.configuration_json as { identity?: { displayName?: string } } | null)?.identity?.displayName ||
+    study?.stable_study_id ||
+    "a study";
+  const origin = await getSiteOrigin();
+
+  await sendRoleChangedEmail({
+    to: updated.invited_email,
+    studyDisplayName,
+    role: role as CollaboratorRole,
+    teamUrl: `${origin}/dashboard/team?study=${updated.study_id}`,
+  });
 
   revalidatePath("/dashboard/team");
   return { error: null, success: true };
