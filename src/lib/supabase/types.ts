@@ -21,6 +21,11 @@ export interface Study {
   // until the researcher links it — required before the study can be
   // activated (see setStudyActive).
   is_active: boolean;
+  // Null until archived — see control_backend/migrations/010_archived_studies.sql.
+  // An archived study is always inactive (enforced by setStudyArchived() and,
+  // as a backstop, a DB check constraint), but not-active alone just means
+  // Draft — archived is a separate, deliberate "done with this" state.
+  archived_at: string | null;
   enrollment_opens_at: string | null;
   enrollment_closes_at: string | null;
   created_at: string;

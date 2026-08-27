@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ActivateStudyControl } from "@/components/study-wizard/activate-study-control";
+import { ArchiveStudyControl } from "@/components/study-wizard/archive-study-control";
 import type { CollaboratorRole, Study } from "@/lib/supabase/types";
 
 export const metadata = {
@@ -45,6 +46,9 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
     role = (membership?.role as CollaboratorRole | undefined) ?? "viewer";
   }
   const canEdit = role === "owner" || role === "admin" || role === "editor";
+  // Tighter than canEdit — archiving removes a study from the whole
+  // team's default dashboard view, not just a personal edit.
+  const canArchive = role === "owner" || role === "admin";
 
   const config = study.configuration_json;
 
@@ -59,8 +63,8 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
             {config.identity.displayName || study.stable_study_id}
           </h1>
         </div>
-        <Badge variant={study.is_active ? "default" : "secondary"}>
-          {study.is_active ? "Active" : "Draft"}
+        <Badge variant={study.archived_at ? "outline" : study.is_active ? "default" : "secondary"}>
+          {study.archived_at ? "Archived" : study.is_active ? "Active" : "Draft"}
         </Badge>
       </div>
 
@@ -105,6 +109,13 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
               Edit draft
             </Button>
           </>
+        )}
+        {canArchive && (
+          <ArchiveStudyControl
+            studyId={study.id}
+            isArchived={!!study.archived_at}
+            isActive={study.is_active}
+          />
         )}
         <Button variant="outline" nativeButton={false} render={<Link href={`/dashboard/team?study=${study.id}`} />}>
           Manage team

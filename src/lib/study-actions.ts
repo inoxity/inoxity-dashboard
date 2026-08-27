@@ -287,3 +287,43 @@ export async function setStudyActive(
   revalidatePath("/dashboard");
   return { error: null };
 }
+
+export async function setStudyArchived(
+  _prevState: ActivateActionState,
+  formData: FormData,
+): Promise<ActivateActionState> {
+  const studyId = String(formData.get("studyId") ?? "");
+  const archived = formData.get("archived") === "true";
+
+  // Not destructuring `user` — same reasoning as updateDraftStudy above.
+  const { supabase } = await requireUser();
+
+  const { data: study, error: fetchError } = await supabase
+    .from("studies")
+    .select("is_active")
+    .eq("id", studyId)
+    .single();
+
+  if (fetchError || !study) {
+    return { error: "Study not found." };
+  }
+
+  if (archived && study.is_active) {
+    return {
+      error: "Deactivate this study before archiving it — an archived study can't stay active for participants.",
+    };
+  }
+
+  const { error: updateError } = await supabase
+    .from("studies")
+    .update({ archived_at: archived ? new Date().toISOString() : null })
+    .eq("id", studyId);
+
+  if (updateError) {
+    return { error: "Something went wrong updating the study. Please try again." };
+  }
+
+  revalidatePath(`/dashboard/studies/${studyId}`);
+  revalidatePath("/dashboard");
+  return { error: null };
+}
