@@ -6,7 +6,6 @@ import { FolderKanban, Activity, FileClock, Archive, HelpCircle } from "lucide-r
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { HeroOrbits } from "@/components/dashboard/hero-orbits";
 import { StudyListCard, type StudyListCardData } from "@/components/dashboard/study-list-card";
 import { ArchivedStudiesSection } from "@/components/dashboard/archived-studies-section";
@@ -94,20 +93,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-12">
-      <div className="relative isolate overflow-hidden rounded-2xl py-12">
+      <div className="relative isolate overflow-hidden rounded-2xl py-14">
         <HeroOrbits className="opacity-70" />
-        <div className="relative z-10 flex flex-col items-center gap-3 text-center">
-          <Image src="/inoxity-brain.png" alt="" width={36} height={36} aria-hidden />
-          <Separator className="w-10" />
+        <div className="relative z-10 flex flex-col items-center gap-4 text-center">
           <p className="text-sm text-muted-foreground">Welcome to your</p>
-          <h1 className="text-3xl font-light sm:text-4xl" style={{ fontFamily: "var(--font-raleway)" }}>
+          <h1 className="text-4xl font-light sm:text-5xl" style={{ fontFamily: "var(--font-raleway)" }}>
             Researcher Dashboard, <span className="text-primary">{firstName}</span>
           </h1>
-          <Separator className="w-16" />
-          <blockquote className="max-w-lg text-sm text-muted-foreground italic">
-            &quot;The best way to predict the future is to create it.&quot;
-          </blockquote>
-          <cite className="text-xs text-muted-foreground not-italic">— Peter Drucker</cite>
+          <Image src="/inoxity-brain.png" alt="" width={96} height={96} aria-hidden className="my-1" />
+          <p className="max-w-lg text-base text-muted-foreground sm:text-lg">
+            Durable by design. Open by nature. Driven by curiosity.
+          </p>
         </div>
       </div>
 
