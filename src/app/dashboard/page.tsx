@@ -53,13 +53,22 @@ export default async function DashboardPage() {
   // No owner_id filter — includes studies the caller collaborates on too,
   // not just owns (see 008_study_collaborators.sql's broadened studies
   // SELECT policy). A separate query below fills in each card's role badge.
-  const { data: studies } = await supabase
+  const { data: studies, error: studiesError } = await supabase
     .from("studies")
     .select(
       "id, owner_id, stable_study_id, study_code, is_active, archived_at, configuration_json, created_at",
     )
     .order("created_at", { ascending: false })
     .returns<StudyListItem[]>();
+
+  // A query error here (e.g. archived_at doesn't exist yet because
+  // 010_archived_studies.sql hasn't been applied) previously failed
+  // silently — Supabase's client doesn't throw, it just returns
+  // { data: null, error }, and without logging it every stat/list on this
+  // page would quietly show empty instead of pointing at the real cause.
+  if (studiesError) {
+    console.error("[dashboard] failed to load studies", studiesError.code, studiesError.message);
+  }
 
   const { data: myCollaborations } = await supabase
     .from("study_collaborators")
