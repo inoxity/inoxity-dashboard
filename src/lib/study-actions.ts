@@ -288,6 +288,52 @@ export async function setStudyActive(
   return { error: null };
 }
 
+export async function deleteStudy(
+  _prevState: ActivateActionState,
+  formData: FormData,
+): Promise<ActivateActionState> {
+  const studyId = String(formData.get("studyId") ?? "");
+  const confirmation = String(formData.get("confirmation") ?? "").trim();
+
+  if (confirmation !== "DELETE") {
+    return { error: 'Type "DELETE" to confirm.' };
+  }
+
+  // Do need `user` here — RLS restricts the actual DELETE to the owner
+  // (012_delete_study.sql), but a non-owner's fetch below would still
+  // succeed (RLS lets collaborators SELECT), so without this check
+  // they'd see the generic update-failure message below instead of a
+  // permission-specific one.
+  const { supabase, user } = await requireUser();
+
+  const { data: study, error: fetchError } = await supabase
+    .from("studies")
+    .select("owner_id, is_active")
+    .eq("id", studyId)
+    .single();
+
+  if (fetchError || !study) {
+    return { error: "Study not found." };
+  }
+
+  if (study.owner_id !== user.id) {
+    return { error: "Only this study's owner can delete it." };
+  }
+
+  if (study.is_active) {
+    return { error: "Deactivate this study before deleting it." };
+  }
+
+  const { error: deleteError } = await supabase.from("studies").delete().eq("id", studyId);
+
+  if (deleteError) {
+    return { error: "Something went wrong deleting the study. Please try again." };
+  }
+
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
+}
+
 export async function setStudyArchived(
   _prevState: ActivateActionState,
   formData: FormData,

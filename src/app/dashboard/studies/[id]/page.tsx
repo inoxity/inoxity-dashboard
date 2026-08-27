@@ -3,10 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ActivateStudyControl } from "@/components/study-wizard/activate-study-control";
 import { ArchiveStudyControl } from "@/components/study-wizard/archive-study-control";
+import { DeleteStudyControl } from "@/components/study-wizard/delete-study-control";
 import type { CollaboratorRole, Study } from "@/lib/supabase/types";
 
 export const metadata = {
@@ -124,6 +125,18 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
           Back to dashboard
         </Button>
       </div>
+
+      {isOwner && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Danger zone</CardTitle>
+            <CardDescription>Permanently delete this study and its team roster.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DeleteStudyControl studyId={study.id} isActive={study.is_active} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
