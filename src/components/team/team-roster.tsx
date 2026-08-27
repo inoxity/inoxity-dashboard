@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { updateCollaboratorRole, removeCollaborator, transferStudyOwnership } from "@/lib/team-actions";
+import { updateCollaboratorRole, removeCollaborator } from "@/lib/team-actions";
 import { teamInitialState } from "@/lib/team-action-state";
 import { COLLABORATOR_ROLES, ROLE_LABELS, type CollaboratorRole, type StudyTeamMember } from "@/lib/supabase/types";
 import { Badge } from "@/components/ui/badge";
@@ -20,16 +20,12 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function TeamRoster({
-  studyId,
   team,
   currentUserId,
-  isOwner,
   canManage,
 }: {
-  studyId: string;
   team: StudyTeamMember[];
   currentUserId: string;
-  isOwner: boolean;
   canManage: boolean;
 }) {
   return (
@@ -57,14 +53,6 @@ export function TeamRoster({
                 <RoleControl collaboratorId={member.collaborator_id!} role={member.role as CollaboratorRole} />
               ) : (
                 <Badge variant="secondary">{ROLE_LABELS[member.role as CollaboratorRole]}</Badge>
-              )}
-
-              {!member.is_owner && isOwner && member.accepted_at && member.role !== "viewer" && (
-                <TransferOwnershipControl
-                  studyId={studyId}
-                  newOwnerUserId={member.user_id!}
-                  name={member.full_name || member.invited_email || "this person"}
-                />
               )}
 
               {!member.is_owner && (canManage || isSelf) && (
@@ -155,57 +143,6 @@ function RemoveControl({ collaboratorId, name, isSelf }: { collaboratorId: strin
             <DialogClose render={<Button type="button" variant="ghost" />}>Cancel</DialogClose>
             <Button type="submit" variant="destructive" disabled={isPending}>
               {isPending ? "Removing…" : isSelf ? "Leave" : "Remove"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function TransferOwnershipControl({
-  studyId,
-  newOwnerUserId,
-  name,
-}: {
-  studyId: string;
-  newOwnerUserId: string;
-  name: string;
-}) {
-  const [state, formAction, isPending] = useActionState(transferStudyOwnership, teamInitialState);
-  const [open, setOpen] = useState(false);
-  const wasPending = useRef(false);
-
-  useEffect(() => {
-    if (wasPending.current && !isPending && !state.error) {
-      setOpen(false);
-    }
-    wasPending.current = isPending;
-  }, [isPending, state.error]);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>Make owner</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Make {name} the owner?</DialogTitle>
-          <DialogDescription>
-            You&apos;ll become an Admin on this study instead. Only the current owner can transfer ownership, and
-            this can&apos;t be undone by anyone but the new owner.
-          </DialogDescription>
-        </DialogHeader>
-        <form action={formAction}>
-          <input type="hidden" name="studyId" value={studyId} />
-          <input type="hidden" name="newOwnerUserId" value={newOwnerUserId} />
-          {state.error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{state.error}</AlertDescription>
-            </Alert>
-          )}
-          <DialogFooter>
-            <DialogClose render={<Button type="button" variant="ghost" />}>Cancel</DialogClose>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Transferring…" : "Transfer ownership"}
             </Button>
           </DialogFooter>
         </form>

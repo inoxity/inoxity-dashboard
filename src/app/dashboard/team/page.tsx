@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StudyPicker } from "@/components/team/study-picker";
 import { TeamRoster } from "@/components/team/team-roster";
 import { InviteForm } from "@/components/team/invite-form";
+import { TransferOwnershipSection } from "@/components/team/transfer-ownership-section";
 import type { Study, StudyTeamMember } from "@/lib/supabase/types";
 
 export const metadata = {
@@ -110,16 +111,12 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                 : "Couldn't load the team for this study."}
             </p>
           ) : (
-            <TeamRoster
-              studyId={selectedStudy.id}
-              team={team}
-              currentUserId={user.id}
-              isOwner={isOwner}
-              canManage={canManage}
-            />
+            <TeamRoster team={team} currentUserId={user.id} canManage={canManage} />
           )}
         </CardContent>
       </Card>
+
+      {isOwner && team && <TransferOwnershipSection studyId={selectedStudy.id} team={team} />}
 
       {canManage && team && (
         <Card>
