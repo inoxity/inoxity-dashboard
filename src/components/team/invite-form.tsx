@@ -17,11 +17,11 @@ export function InviteForm({ studyId }: { studyId: string }) {
   const wasPending = useRef(false);
 
   useEffect(() => {
-    if (wasPending.current && !isPending && state.success && !state.fallbackAcceptUrl) {
+    if (wasPending.current && !isPending && state.success) {
       formRef.current?.reset();
     }
     wasPending.current = isPending;
-  }, [isPending, state.success, state.fallbackAcceptUrl]);
+  }, [isPending, state.success]);
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -60,14 +60,6 @@ export function InviteForm({ studyId }: { studyId: string }) {
       {state.error && (
         <Alert variant="destructive" className="sm:basis-full">
           <AlertDescription>{state.error}</AlertDescription>
-        </Alert>
-      )}
-      {state.success && state.fallbackAcceptUrl && (
-        <Alert className="sm:basis-full">
-          <AlertDescription>
-            Invite created, but the email couldn&apos;t be sent — share this link directly instead:{" "}
-            <span className="break-all font-mono text-xs">{state.fallbackAcceptUrl}</span>
-          </AlertDescription>
         </Alert>
       )}
     </form>

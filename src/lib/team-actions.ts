@@ -96,7 +96,11 @@ export async function inviteCollaborator(
   const origin = await getSiteOrigin();
   const acceptUrl = `${origin}/invite/${inserted.invite_token}`;
 
-  const { error: emailError } = await sendStudyInviteEmail({
+  // Best-effort — the invite row already exists regardless of whether this
+  // send succeeds (sendEmail() logs its own failure), and the invited
+  // person can always be re-invited/reminded later, so a delivery hiccup
+  // here isn't surfaced back to the inviter as a different outcome.
+  await sendStudyInviteEmail({
     to: email,
     studyDisplayName,
     inviterName: inviterProfile?.full_name || "A researcher",
@@ -105,10 +109,6 @@ export async function inviteCollaborator(
   });
 
   revalidatePath("/dashboard/team");
-
-  if (emailError) {
-    return { error: null, success: true, fallbackAcceptUrl: acceptUrl };
-  }
   return { error: null, success: true };
 }
 
