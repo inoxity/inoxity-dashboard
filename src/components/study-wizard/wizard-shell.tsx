@@ -1,6 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export function WizardShell({
   steps,
@@ -9,6 +19,8 @@ export function WizardShell({
   onNext,
   onJumpTo,
   onSaveExit,
+  onCancel,
+  isDirty,
   isLastStep,
   isPending,
   saveExitPending,
@@ -25,6 +37,14 @@ export function WizardShell({
   // first step whose fields don't validate rather than skipping over it).
   onJumpTo?: (index: number) => void;
   onSaveExit?: () => void;
+  // Leaves the wizard without saving anything — unlike onSaveExit, which
+  // persists progress first. Available on every step, including the
+  // last, since "I don't want to keep these edits" is independent of how
+  // far through the wizard you got.
+  onCancel: () => void;
+  // Whether the form has any unsaved edits — skips the confirmation
+  // dialog when there's nothing to actually discard.
+  isDirty: boolean;
   isLastStep: boolean;
   isPending: boolean;
   saveExitPending?: boolean;
@@ -32,6 +52,15 @@ export function WizardShell({
   submitLabel: string;
   children: React.ReactNode;
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  function handleCancelClick() {
+    if (isDirty) {
+      setConfirmOpen(true);
+    } else {
+      onCancel();
+    }
+  }
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <div>
@@ -88,6 +117,9 @@ export function WizardShell({
           Back
         </Button>
         <div className="flex items-center gap-3">
+          <Button type="button" variant="ghost" onClick={handleCancelClick} disabled={isPending || saveExitPending}>
+            Cancel
+          </Button>
           {onSaveExit && (
             <Button type="button" variant="ghost" onClick={onSaveExit} disabled={isPending || saveExitPending}>
               {saveExitPending ? "Saving…" : "Save & Exit"}
@@ -104,6 +136,24 @@ export function WizardShell({
           )}
         </div>
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Discard your changes?</DialogTitle>
+            <DialogDescription>
+              Anything you&apos;ve edited since opening this wizard will be lost. This doesn&apos;t affect what&apos;s
+              already saved.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button type="button" variant="ghost" />}>Keep editing</DialogClose>
+            <Button type="button" variant="destructive" onClick={onCancel}>
+              Discard changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, FormProvider, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { studyConfigurationSchema, blankStudyDraft, type StudyConfiguration } from "@/lib/study-schema";
@@ -38,6 +39,7 @@ export function StudyWizard({
     defaultValues: defaultValues ?? blankStudyDraft(),
     mode: "onBlur",
   });
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -200,6 +202,15 @@ export function StudyWizard({
     });
   }
 
+  // Leaves without persisting anything — nothing to actively "discard"
+  // beyond navigating away, since react-hook-form's state is purely
+  // client-side and nothing here has touched the DB unless onSubmit/
+  // onSaveExit already ran. In edit mode, back to this study's own page;
+  // in create mode there's no study yet, so back to the dashboard.
+  function onCancel() {
+    router.push(mode === "edit" ? `/dashboard/studies/${studyId}` : "/dashboard");
+  }
+
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -210,6 +221,8 @@ export function StudyWizard({
           onNext={isLastStep ? undefined : goNext}
           onJumpTo={goTo}
           onSaveExit={isLastStep ? undefined : onSaveExit}
+          onCancel={onCancel}
+          isDirty={form.formState.isDirty}
           isLastStep={isLastStep}
           isPending={isPending}
           saveExitPending={saveExitPending}
