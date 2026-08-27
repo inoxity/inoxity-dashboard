@@ -55,6 +55,43 @@ function renderCluster(cluster: OrbitCluster, key: string) {
   );
 }
 
+// Spread across the whole 800x460 canvas, deliberately including the band
+// between the two orbit clusters (roughly x 250-620) so they read as one
+// shared sky rather than two disconnected patches of stars.
+const STARS: { x: number; y: number; r: number; color: string; opacity: number }[] = [
+  { x: 90, y: 60, r: 1.5, color: "var(--primary)", opacity: 0.4 },
+  { x: 180, y: 120, r: 1, color: "var(--accent)", opacity: 0.4 },
+  { x: 700, y: 90, r: 1.5, color: "var(--accent)", opacity: 0.4 },
+  { x: 650, y: 410, r: 1, color: "var(--primary)", opacity: 0.4 },
+  { x: 100, y: 400, r: 1.5, color: "var(--primary)", opacity: 0.35 },
+  { x: 770, y: 230, r: 1, color: "var(--accent)", opacity: 0.35 },
+  { x: 40, y: 250, r: 1, color: "var(--primary)", opacity: 0.3 },
+  { x: 480, y: 40, r: 1.5, color: "var(--accent)", opacity: 0.35 },
+  { x: 330, y: 430, r: 1, color: "var(--primary)", opacity: 0.3 },
+  { x: 520, y: 180, r: 1, color: "var(--accent)", opacity: 0.3 },
+  { x: 760, y: 380, r: 1.5, color: "var(--primary)", opacity: 0.3 },
+  // Fill the connecting band between the two clusters
+  { x: 260, y: 90, r: 1, color: "var(--primary)", opacity: 0.3 },
+  { x: 310, y: 260, r: 1.5, color: "var(--accent)", opacity: 0.3 },
+  { x: 370, y: 130, r: 1, color: "var(--primary)", opacity: 0.35 },
+  { x: 420, y: 300, r: 1, color: "var(--accent)", opacity: 0.3 },
+  { x: 460, y: 220, r: 1.5, color: "var(--primary)", opacity: 0.3 },
+  { x: 380, y: 380, r: 1, color: "var(--primary)", opacity: 0.25 },
+  { x: 550, y: 100, r: 1, color: "var(--accent)", opacity: 0.3 },
+  { x: 600, y: 260, r: 1, color: "var(--primary)", opacity: 0.3 },
+  { x: 290, y: 340, r: 1, color: "var(--primary)", opacity: 0.25 },
+  { x: 430, y: 60, r: 1, color: "var(--accent)", opacity: 0.25 },
+  { x: 220, y: 400, r: 1.5, color: "var(--accent)", opacity: 0.3 },
+  { x: 630, y: 60, r: 1, color: "var(--primary)", opacity: 0.3 },
+  { x: 130, y: 340, r: 1, color: "var(--accent)", opacity: 0.25 },
+  { x: 210, y: 30, r: 1, color: "var(--primary)", opacity: 0.25 },
+  { x: 500, y: 400, r: 1, color: "var(--accent)", opacity: 0.25 },
+  { x: 350, y: 20, r: 1, color: "var(--accent)", opacity: 0.25 },
+  { x: 660, y: 150, r: 1, color: "var(--primary)", opacity: 0.25 },
+  { x: 160, y: 200, r: 1, color: "var(--primary)", opacity: 0.2 },
+  { x: 590, y: 400, r: 1, color: "var(--primary)", opacity: 0.25 },
+];
+
 // Purely decorative — no brand asset for this exists (the branding folder
 // only has abstract gradient wave PNGs, not orbit/dot line art), so this
 // is hand-built rather than sourced. aria-hidden + no interactivity.
@@ -65,8 +102,8 @@ function renderCluster(cluster: OrbitCluster, key: string) {
 // disconnected shapes.
 export function HeroOrbits({ className }: { className?: string }) {
   const primary: OrbitCluster = {
-    cx: 260,
-    cy: 210,
+    cx: 30,
+    cy: 170,
     glowR: 160,
     rings: [
       { rx: 230, ry: 120, rotate: -18, color: "var(--primary)", opacity: 0.35 },
@@ -85,8 +122,8 @@ export function HeroOrbits({ className }: { className?: string }) {
   // Smaller, lower, different angles entirely (not a mirror of primary) so
   // the two don't read as a single symmetric shape.
   const secondary: OrbitCluster = {
-    cx: 610,
-    cy: 330,
+    cx: 780,
+    cy: 290,
     glowR: 90,
     rings: [
       { rx: 140, ry: 70, rotate: -42, color: "var(--accent)", opacity: 0.3 },
@@ -123,18 +160,13 @@ export function HeroOrbits({ className }: { className?: string }) {
       {renderCluster(primary, "primary")}
       {renderCluster(secondary, "secondary")}
 
-      {/* Scattered background stars */}
-      <circle cx="90" cy="60" r="1.5" fill="var(--primary)" fillOpacity="0.4" />
-      <circle cx="180" cy="120" r="1" fill="var(--accent)" fillOpacity="0.4" />
-      <circle cx="700" cy="90" r="1.5" fill="var(--accent)" fillOpacity="0.4" />
-      <circle cx="650" cy="410" r="1" fill="var(--primary)" fillOpacity="0.4" />
-      <circle cx="100" cy="400" r="1.5" fill="var(--primary)" fillOpacity="0.35" />
-      <circle cx="770" cy="230" r="1" fill="var(--accent)" fillOpacity="0.35" />
-      <circle cx="40" cy="250" r="1" fill="var(--primary)" fillOpacity="0.3" />
-      <circle cx="480" cy="40" r="1.5" fill="var(--accent)" fillOpacity="0.35" />
-      <circle cx="330" cy="430" r="1" fill="var(--primary)" fillOpacity="0.3" />
-      <circle cx="520" cy="180" r="1" fill="var(--accent)" fillOpacity="0.3" />
-      <circle cx="760" cy="380" r="1.5" fill="var(--primary)" fillOpacity="0.3" />
+      {/* Scattered background stars, spread across the whole canvas
+          (including the gap between the two clusters) so both orbit
+          systems read as part of one shared sky rather than two
+          disconnected patches. */}
+      {STARS.map((s, i) => (
+        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill={s.color} fillOpacity={s.opacity} />
+      ))}
     </svg>
   );
 }

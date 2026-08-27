@@ -105,14 +105,16 @@ export default async function DashboardPage() {
       <div className="relative isolate overflow-hidden rounded-2xl py-14">
         <HeroOrbits className="opacity-70" />
         <div className="relative z-10 flex flex-col items-center gap-4 text-center">
-          <p className="text-sm text-muted-foreground">Welcome to your</p>
+          <p className="text-base text-muted-foreground">Welcome to your</p>
           <h1 className="text-4xl font-light sm:text-5xl" style={{ fontFamily: "var(--font-raleway)" }}>
             Researcher Dashboard, <span className="text-primary">{firstName}</span>
           </h1>
-          <Image src="/inoxity-brain.png" alt="" width={96} height={96} aria-hidden className="my-1" />
-          <p className="max-w-lg text-base text-muted-foreground sm:text-lg">
-            Durable by design. Open by nature. Driven by curiosity.
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <Image src="/inoxity-brain.png" alt="" width={96} height={96} aria-hidden />
+            <p className="max-w-lg text-base text-muted-foreground sm:text-lg">
+              Durable by design. Open by nature. Driven by curiosity.
+            </p>
+          </div>
         </div>
       </div>
 
