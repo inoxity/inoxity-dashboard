@@ -19,6 +19,10 @@
 
 # production
 /build
+/site/
+
+# local documentation environment
+/.docs-venv/
 
 # misc
 .DS_Store

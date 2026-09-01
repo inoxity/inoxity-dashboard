@@ -1,0 +1,75 @@
+site_name: Inoxity Documentation
+site_description: Researcher guide for configuring and operating Inoxity studies
+site_url: https://inoxity.readthedocs.io/
+repo_url: https://github.com/inoxity/inoxity-dashboard
+repo_name: inoxity/inoxity-dashboard
+docs_dir: docs
+exclude_docs: |
+  /customizing-auth-emails.md
+strict: true
+
+theme:
+  name: material
+  logo: images/inoxity-mark.png
+  favicon: images/inoxity-mark.png
+  font: false
+  palette:
+    - scheme: slate
+      primary: custom
+      accent: custom
+  features:
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Overview: getting-started/overview.md
+      - Researcher workflow: getting-started/researcher-workflow.md
+      - Creating an account: getting-started/creating-an-account.md
+      - Creating a study: getting-started/creating-a-study.md
+      - Managing a team: getting-started/managing-a-team.md
+  - Configure a study:
+      - Study configuration: studies/study-configuration.md
+      - Participant setup: studies/participant-setup.md
+      - Surveys and reminders: studies/surveys-and-reminders.md
+      - Health data: studies/health-data.md
+      - Media collection: studies/media-collection.md
+  - Data and infrastructure:
+      - Data overview: data/overview.md
+      - Control Backend: data/control-backend.md
+      - Study Backend: data/study-backend.md
+      - Accessing study data: data/data-access.md
+  - Participant experience:
+      - Onboarding: participant-experience/onboarding.md
+      - See My Data: participant-experience/see-my-data.md
+      - Withdrawal: participant-experience/withdrawal.md
+  - Administration:
+      - Supabase setup: administration/supabase-setup.md
+      - Customizing authentication emails: administration/customizing-auth-emails.md
+  - Reference:
+      - Configuration reference: reference/configuration-reference.md
+      - Supported HealthKit data: reference/supported-healthkit-data.md
+  - Troubleshooting: troubleshooting.md
+  - Glossary: glossary.md
