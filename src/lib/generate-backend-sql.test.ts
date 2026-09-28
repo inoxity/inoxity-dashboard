@@ -90,4 +90,12 @@ describe("generateStudyBackendSQL", () => {
     // existing `samples jsonb` payload, not as a new top-level RPC parameter.
     expect(sql).toContain("grant execute on function public.submit_healthkit_samples(uuid,text,uuid,jsonb) to authenticated");
   });
+
+  it("treats a HealthKit re-send under a newer configuration revision as idempotent, not a conflict", () => {
+    const sql = generateStudyBackendSQL(config);
+    expect(sql).toContain("then raise exception 'conflicting duplicate identity'");
+    // A config republish makes the app re-send already-uploaded samples under the new revision.
+    expect(sql).not.toContain("v_existing.configuration_revision <> (v_sample->>'configuration_revision')");
+    expect(sql).not.toContain("v_existing.configuration_schema_version <> (v_sample->>'configuration_schema_version')");
+  });
 });

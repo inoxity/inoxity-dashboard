@@ -552,6 +552,11 @@ function healthKitRPCBranch(spec: HealthKitTableSpec, isFirst: boolean): string 
       break;
   }
 
+  // configuration_schema_version/configuration_revision are deliberately NOT
+  // part of the duplicate-identity check: a config republish makes the app
+  // re-send already-uploaded samples under the new revision, and those must be
+  // acknowledged as the existing row, not rejected (see the app repo's
+  // study_backend_template/migrations/012_healthkit_idempotent_across_revisions.sql).
   return `    ${keyword} v_identifier = '${spec.identifier}' then
 ${validate}
       select * into v_existing from public.${spec.table} t where t.client_sample_id = v_sample->>'client_sample_id';
@@ -562,8 +567,6 @@ ${validate}
            or v_existing.sample_start <> (v_sample->>'sample_start')::timestamptz
            or v_existing.sample_end <> (v_sample->>'sample_end')::timestamptz
 ${compareLine}
-           or v_existing.configuration_schema_version <> (v_sample->>'configuration_schema_version')::integer
-           or v_existing.configuration_revision <> (v_sample->>'configuration_revision')::integer
         then raise exception 'conflicting duplicate identity' using errcode='23505'; end if;
         client_sample_id:=v_existing.client_sample_id; acknowledgment_id:=v_existing.id; received_at:=v_existing.received_at; idempotent_existing:=true; return next; continue;
       end if;
