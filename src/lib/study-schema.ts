@@ -512,12 +512,13 @@ const surveySchema = z.object({
   sendNotificationOnOpen: z.boolean(),
   notificationTitle: z.string().trim().min(1).nullable(),
   notificationBody: z.string().trim().min(1).nullable(),
-  // If set, this occurrence is marked "missed" (adherence-tracking status, not a hard lock —
+  // If set, this occurrence is marked "late" (adherence-tracking status, not a hard lock —
   // availabilityWindow.closesMinutesAfter above still governs whether it can actually still be
-  // opened/completed) once this many minutes pass past `opens` without the participant opening
-  // it, regardless of whether they'd open it by tapping the notification or by navigating to the
-  // Surveys tab directly — both are stamped identically on the app side. null = only
-  // closesMinutesAfter governs "missed" (today's existing behavior). Mirrors
+  // opened/completed) once this many minutes pass after the participant is first prompted
+  // without them opening it. "Prompted" is the first notification for the occurrence (a linked
+  // survey reminder's notifyMinutesBefore, or sendNotificationOnOpen at the scheduled time), or
+  // `opens` when nothing notifies. Counting from `opens` instead made a short deadline pass before
+  // the notification arrived. null = only closesMinutesAfter governs "missed". Mirrors
   // `SurveyConfiguration.promptExpirationMinutes` in StudyConfiguration.swift. Absent on
   // schemaVersion < 8 configs — see migrateStoredConfiguration. (Lived on reminders before this
   // schema version; moved here since it's fundamentally about a survey occurrence's own

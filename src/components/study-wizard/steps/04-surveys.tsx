@@ -101,8 +101,8 @@ export function StepSurveys() {
           </div>
           <NullableNumberField
             name={`surveys.${index}.promptExpirationMinutes`}
-            label="Mark missed if not opened within N minutes (optional)"
-            description="A softer, adherence-tracking deadline — can be shorter than “Closes N minutes after” above, which still governs whether the survey can actually be opened/completed. Leave blank to rely on that closing time alone. Counts from whichever moment the survey opens, whether the participant taps a notification or opens it from the Surveys tab directly."
+            label="Mark late if not opened within N minutes (optional)"
+            description="An adherence-tracking deadline only: a late survey can still be opened and completed until “Closes N minutes after” above. Counts from when the participant is first notified about the survey (its reminder or its own notification), or from when it opens if nothing notifies. Leave blank to rely on the closing time alone."
             min={1}
           />
           <SwitchField
