@@ -54,6 +54,7 @@ nav:
       - Study configuration: studies/study-configuration.md
       - Participant setup: studies/participant-setup.md
       - Surveys and reminders: studies/surveys-and-reminders.md
+      - Tracking survey completion: studies/survey-completion-tracking.md
       - Health data: studies/health-data.md
       - Media collection: studies/media-collection.md
   - Data and infrastructure:
