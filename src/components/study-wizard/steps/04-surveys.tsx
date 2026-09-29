@@ -8,7 +8,6 @@ import {
   SwitchField,
   SelectField,
   NumberField,
-  NullableNumberField,
   NullableTextField,
   NullableTextareaField,
   DateField,
@@ -99,12 +98,6 @@ export function StepSurveys() {
               max={1440}
             />
           </div>
-          <NullableNumberField
-            name={`surveys.${index}.promptExpirationMinutes`}
-            label="Mark late if not opened within N minutes (optional)"
-            description="An adherence-tracking deadline only: a late survey can still be opened and completed until “Closes N minutes after” above. Counts from when the participant is first notified about the survey (its reminder or its own notification), or from when it opens if nothing notifies. Leave blank to rely on the closing time alone."
-            min={1}
-          />
           <SwitchField
             name={`surveys.${index}.completionCallback.enabled`}
             label="Enable completion callback"

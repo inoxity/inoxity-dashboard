@@ -512,17 +512,12 @@ const surveySchema = z.object({
   sendNotificationOnOpen: z.boolean(),
   notificationTitle: z.string().trim().min(1).nullable(),
   notificationBody: z.string().trim().min(1).nullable(),
-  // If set, this occurrence is marked "late" (adherence-tracking status, not a hard lock —
-  // availabilityWindow.closesMinutesAfter above still governs whether it can actually still be
-  // opened/completed) once this many minutes pass after the participant is first prompted
-  // without them opening it. "Prompted" is the first notification for the occurrence (a linked
-  // survey reminder's notifyMinutesBefore, or sendNotificationOnOpen at the scheduled time), or
-  // `opens` when nothing notifies. Counting from `opens` instead made a short deadline pass before
-  // the notification arrived. null = only closesMinutesAfter governs "missed". Mirrors
-  // `SurveyConfiguration.promptExpirationMinutes` in StudyConfiguration.swift. Absent on
-  // schemaVersion < 8 configs — see migrateStoredConfiguration. (Lived on reminders before this
-  // schema version; moved here since it's fundamentally about a survey occurrence's own
-  // adherence deadline, not any particular reminder announcing it.)
+  // No longer used or shown in the wizard. It was a soft "missed" deadline that only labelled
+  // survey occurrences on the phone (it never reached study data), and counted from `opens` it
+  // blocked surveys before their notification arrived, so the app now ignores it and the
+  // availability window is the only rule. Kept in the schema so stored configs that already set
+  // it still validate. Mirrors `SurveyConfiguration.promptExpirationMinutes` in
+  // StudyConfiguration.swift.
   promptExpirationMinutes: z.number().int().min(1).nullable(),
 });
 
