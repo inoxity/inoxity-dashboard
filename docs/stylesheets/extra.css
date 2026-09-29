@@ -456,3 +456,52 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- Security architecture figure (docs/data/security.md) ---------- */
+.md-typeset .security-diagram {
+  margin: 1.5em 0;
+  padding: 1.25rem 1.25rem 1rem;
+  background: var(--inoxity-surface);
+  border: 1px solid var(--inoxity-border);
+  border-radius: var(--inoxity-radius);
+}
+.security-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--inoxity-text);
+  font-family: inherit;
+}
+.security-diagram .box { fill: var(--inoxity-surface-raised); stroke: currentColor; stroke-width: 1.4; }
+.security-diagram .box--control { stroke: var(--inoxity-pink); stroke-width: 1.8; }
+.security-diagram .box--study { fill: var(--inoxity-surface-raised); stroke: var(--inoxity-teal); stroke-width: 1.8; }
+.security-diagram .box--back { fill: var(--inoxity-surface); stroke: var(--inoxity-teal); stroke-width: 1; opacity: 0.45; }
+.security-diagram .divider { stroke: currentColor; stroke-width: 0.6; opacity: 0.35; }
+.security-diagram .name { font-size: 14px; font-weight: 600; fill: currentColor; }
+.security-diagram .sub { font-size: 11px; fill: var(--inoxity-muted); }
+.security-diagram .mono { font-size: 11px; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; opacity: 0.9; }
+.security-diagram .note { font-size: 11px; fill: var(--inoxity-pink); }
+.security-diagram .flow { stroke: currentColor; stroke-width: 1.4; fill: none; }
+.security-diagram .flow--data { stroke-width: 2; }
+.security-diagram .flow--return { stroke-dasharray: 5 4; opacity: 0.8; }
+.security-diagram .flow--setup { stroke-dasharray: 2 5; opacity: 0.55; }
+.security-diagram .label { font-size: 11.5px; fill: currentColor; }
+.security-diagram .label--quiet { fill: var(--inoxity-muted); }
+.security-diagram .badge circle { fill: var(--inoxity-teal); stroke: var(--inoxity-surface); stroke-width: 2; }
+.security-diagram .badge text { font-size: 12px; font-weight: 700; fill: var(--inoxity-background); }
+
+.md-typeset .security-diagram figcaption {
+  max-width: none;
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--inoxity-border);
+  text-align: left;
+  font-style: normal;
+  color: var(--md-default-fg-color--light);
+}
+.md-typeset .security-steps { margin: 0 0 0.75rem; }
+.md-typeset .security-steps li::marker { color: var(--inoxity-teal); font-weight: 700; }
+.md-typeset .security-key { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.6rem; margin: 0; font-size: 0.75rem; }
+.security-key .key { display: inline-block; width: 28px; border-top: 2px solid var(--inoxity-text); }
+.security-key .key--dashed { border-top-style: dashed; opacity: 0.8; }
+.security-key .key--dotted { border-top-style: dotted; opacity: 0.55; }
