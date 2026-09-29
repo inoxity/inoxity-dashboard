@@ -13,7 +13,7 @@ For each survey, researchers configure:
 - how long before and after its scheduled occurrence it is available;
 - optional participant instructions and privacy text;
 - optional active start/end dates;
-- whether a completion callback is expected.
+- whether to track completion (the survey redirects back to the app when it ends).
 
 The app records opened and completed **events**, not survey answers. Survey responses remain with the external survey provider unless that provider is separately integrated with the research team's systems.
 
@@ -22,6 +22,8 @@ The app records opened and completed **events**, not survey answers. Survey resp
 Inoxity is platform-neutral: any survey provider can support basic launching when it supplies a participant-accessible HTTPS URL. Qualtrics is known to work well, but Inoxity does not guarantee a platform-specific integration.
 
 When enabled, completion tracking depends on the external survey platform being able to redirect to the Inoxity callback URL. The survey system must be configured to return to that callback correctly. An opened event must exist before the matching completion can be uploaded.
+
+See [Tracking survey completion](survey-completion-tracking.md) for step-by-step Qualtrics setup and a browser test you can run without the app.
 
 ## Reminder types
 

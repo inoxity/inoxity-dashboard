@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import type { StudyConfiguration } from "@/lib/study-schema";
 import {
@@ -15,7 +16,98 @@ import {
 import { ScheduleFields } from "./schedule-fields";
 import { FieldGroup, FieldSet, FieldLegend } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Check, Copy, Trash2 } from "lucide-react";
+import {
+  buildCompletionTestLink,
+  COMPLETION_EMBEDDED_DATA_FIELDS,
+  QUALTRICS_REDIRECT_VALUE,
+  TEST_REDIRECT_URL,
+} from "@/lib/survey-completion-setup";
+
+const COMPLETION_TRACKING_DOCS_URL = "https://inoxity.readthedocs.io/en/latest/studies/survey-completion-tracking/";
+
+// A value an RA pastes into their survey tool. Copying it avoids typos in names that must match
+// exactly (e.g. inoxity_callback_url).
+function CopyableValue({ value, wrap = false }: { value: string; wrap?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard access can be refused (e.g. an insecure context); the value is still selectable.
+    }
+  }
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <code className={`min-w-0 flex-1 rounded bg-muted px-2 py-1 font-mono text-xs ${wrap ? "break-all" : "truncate"}`}>
+        {value}
+      </code>
+      <Button type="button" variant="outline" size="xs" onClick={copy}>
+        {copied ? <Check /> : <Copy />}
+        {copied ? "Copied" : "Copy"}
+      </Button>
+    </div>
+  );
+}
+
+// Split out for the same Rules-of-Hooks reason as SurveyNotificationFields below.
+function SurveyCompletionTrackingFields({ index }: { index: number }) {
+  const { control } = useFormContext<StudyConfiguration>();
+  const enabled = useWatch({ control, name: `surveys.${index}.completionCallback.enabled` }) === true;
+  const surveyURL = useWatch({ control, name: `surveys.${index}.url` }) as string | undefined;
+  const testLink = buildCompletionTestLink(surveyURL);
+
+  return (
+    <>
+      <SwitchField
+        name={`surveys.${index}.completionCallback.enabled`}
+        label="Track completion (survey redirects back to Inoxity)"
+        description="When a participant finishes, the survey redirects back to the app, which records it as completed. Needs a one-time setup in your survey tool (see below). Turn off only if your survey tool can't redirect to a URL at the end — the app then only records when each survey was started."
+      />
+      {enabled && (
+        <details className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
+          <summary className="cursor-pointer font-medium">How to set this up in Qualtrics</summary>
+          <ol className="mt-3 list-decimal space-y-4 pl-5">
+            <li>
+              In <strong>Survey flow</strong>, add an <strong>Embedded Data</strong> element at the very top (above
+              all questions) with these four fields. Leave their values blank; Qualtrics fills them in from the
+              survey link.
+              {COMPLETION_EMBEDDED_DATA_FIELDS.map((field) => (
+                <CopyableValue key={field} value={field} />
+              ))}
+            </li>
+            <li>
+              In <strong>Survey options → End of survey</strong>, choose <strong>Redirect to a URL</strong> and enter:
+              <CopyableValue value={QUALTRICS_REDIRECT_VALUE} />
+            </li>
+            <li>
+              <strong>Publish</strong> the survey. Qualtrics only uses published changes.
+            </li>
+            <li>
+              <strong>Test it:</strong> open this link in a browser and finish the survey. You should end up on{" "}
+              <code className="font-mono text-xs">{TEST_REDIRECT_URL.replace("https://", "")}</code>, and the
+              response in Qualtrics should show <code className="font-mono text-xs">inoxity_occurrence_id</code> ={" "}
+              <code className="font-mono text-xs">test-occurrence-1</code>. Delete the test response afterwards.
+              {testLink ? (
+                <CopyableValue value={testLink} wrap />
+              ) : (
+                <p className="mt-1.5 text-muted-foreground">Enter the survey URL above to get a test link.</p>
+              )}
+            </li>
+          </ol>
+          <p className="mt-4 text-muted-foreground">
+            Other survey tools work too if they can save link parameters and redirect to a URL at the end.{" "}
+            <a href={COMPLETION_TRACKING_DOCS_URL} target="_blank" rel="noreferrer" className="underline">
+              Full guide
+            </a>
+          </p>
+        </details>
+      )}
+    </>
+  );
+}
 
 // A separate component (not inlined in StepSurveys' .map()) so its useWatch is safely scoped to
 // one survey row — calling hooks directly inside a .map() callback in the parent would violate
@@ -98,11 +190,7 @@ export function StepSurveys() {
               max={1440}
             />
           </div>
-          <SwitchField
-            name={`surveys.${index}.completionCallback.enabled`}
-            label="Enable completion callback"
-            description="Lets the survey redirect back into the app when the participant finishes, so Inoxity knows it's complete. Turn off only if your survey tool can't call back into the app — the app will never learn it's done otherwise, and participants would need to return manually."
-          />
+          <SurveyCompletionTrackingFields index={index} />
           <NullableTextareaField name={`surveys.${index}.instructions`} label="Instructions (optional)" rows={2} />
           <NullableTextareaField name={`surveys.${index}.privacyText`} label="Privacy text (optional)" rows={2} />
           <div className="grid grid-cols-2 gap-4">
