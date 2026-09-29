@@ -19,13 +19,13 @@ Inoxity always knows when a participant **starts** a survey, because the app ope
 Both events are uploaded to the study's `survey_events` table (`event_type` is `opened` or `completed`), along with the occurrence ID and its scheduled time.
 
 !!! warning "Without the redirect, nothing is marked completed"
-    If the survey tool isn't set up to redirect, the app never learns the survey was finished. The survey stays **Started** on the participant's phone, and your data only has an `opened` event for it. The responses themselves are still saved in your survey tool.
+    If **Track completion** is on but the survey tool isn't set up to redirect, the app never learns the survey was finished. The survey stays **Started** on the participant's phone, shows as **Expired** once its window closes, and your data only has an `opened` event for it. The responses themselves are still saved in your survey tool.
 
 ## Turn it on in the dashboard
 
 In the study wizard's **Surveys** step, make sure **Track completion (survey redirects back to Inoxity)** is on for the survey. It's on by default. When it's on, the form shows a **How to set this up in Qualtrics** panel with the values below, copy buttons, and a ready-made test link for that survey.
 
-Turn it off only if your survey tool can't redirect to a URL at the end.
+Turn it off only if your survey tool can't redirect to a URL at the end. With it off, the app treats starting a survey as doing it: once the window closes, a started survey shows as **Done** on the participant's phone instead of **Expired**, and doesn't count as missed. Your data still only has `opened` events for it.
 
 ## Set up Qualtrics
 

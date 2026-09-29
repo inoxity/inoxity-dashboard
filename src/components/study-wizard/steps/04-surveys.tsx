@@ -64,7 +64,7 @@ function SurveyCompletionTrackingFields({ index }: { index: number }) {
       <SwitchField
         name={`surveys.${index}.completionCallback.enabled`}
         label="Track completion (survey redirects back to Inoxity)"
-        description="When a participant finishes, the survey redirects back to the app, which records it as completed. Needs a one-time setup in your survey tool (see below). Turn off only if your survey tool can't redirect to a URL at the end — the app then only records when each survey was started."
+        description="When a participant finishes, the survey redirects back to the app, which records it as completed. Needs a one-time setup in your survey tool (see below). Turn off only if your survey tool can't redirect to a URL at the end. The app then only records when each survey was started, and shows a started survey as "Done" (not "Expired") once its window closes."
       />
       {enabled && (
         <details className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
