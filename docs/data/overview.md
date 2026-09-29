@@ -37,3 +37,5 @@ The research team owns the Study Backend and is responsible for:
 - institutional compliance and data-use controls;
 - monitoring storage and database usage;
 - reviewing generated SQL and any later schema changes.
+
+For how access is enforced between researchers, participants and the two backends, see [Security architecture](security.md).

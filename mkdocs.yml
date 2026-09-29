@@ -62,6 +62,7 @@ nav:
       - Control Backend: data/control-backend.md
       - Study Backend: data/study-backend.md
       - Accessing study data: data/data-access.md
+      - Security architecture: data/security.md
   - Participant experience:
       - Onboarding: participant-experience/onboarding.md
       - See My Data: participant-experience/see-my-data.md
