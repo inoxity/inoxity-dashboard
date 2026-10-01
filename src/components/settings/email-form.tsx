@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export function EmailForm({ currentEmail }: { currentEmail: string }) {
+export function EmailForm() {
   const [state, formAction, isPending] = useActionState(changeEmail, authInitialState);
 
   return (
@@ -16,7 +16,7 @@ export function EmailForm({ currentEmail }: { currentEmail: string }) {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="email">New email address</FieldLabel>
-          <Input id="email" name="email" type="email" defaultValue={currentEmail} required />
+          <Input id="email" name="email" type="email" placeholder="you@example.edu" required />
           <FieldDescription>
             We&apos;ll send confirmation links to both your current and new address — nothing changes until you
             click the one in the new address&apos;s inbox.

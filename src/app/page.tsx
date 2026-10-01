@@ -1,10 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { StatusBanner } from "@/components/status-banner";
 
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <div className="mb-12 w-full">
+        <StatusBanner />
+      </div>
       <div className="flex flex-col items-center gap-1">
         <div className="flex items-center gap-5">
           <span className="h-px w-10 bg-primary/40" />

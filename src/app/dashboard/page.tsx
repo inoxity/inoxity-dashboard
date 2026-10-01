@@ -44,11 +44,17 @@ export default async function DashboardPage() {
   // `string` local does.
   const currentUserId = user.id;
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name, institution")
     .eq("id", user.id)
     .single<Pick<Profile, "full_name" | "institution">>();
+
+  // Without this a failed profile read just shows "Researcher" with no
+  // trace of why — same silent-failure problem as studiesError below.
+  if (profileError) {
+    console.error("[dashboard] failed to load profile", profileError.code, profileError.message);
+  }
 
   // No owner_id filter — includes studies the caller collaborates on too,
   // not just owns (see 008_study_collaborators.sql's broadened studies
@@ -86,7 +92,14 @@ export default async function DashboardPage() {
   const archivedStudies = allStudies.filter((s) => s.archived_at);
   const visibleStudies = [...activeStudies, ...draftStudies];
 
-  const firstName = profile?.full_name?.trim().split(/\s+/)[0] || "Researcher";
+  // profiles.full_name can be '' for accounts whose auth.users row arrived
+  // without signup metadata (handle_new_user() in 003_researcher_profiles.sql
+  // coalesces a missing name to ''; 013_backfill_profile_names.sql fixes
+  // existing rows). Fall back to the signup metadata before the generic
+  // greeting, so the name shows even before Settings is ever saved.
+  const metadataName = typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : "";
+  const displayName = profile?.full_name?.trim() || metadataName.trim();
+  const firstName = displayName.split(/\s+/)[0] || "Researcher";
 
   function toCardData(study: StudyListItem): StudyListCardData & { roleLabel: string | null } {
     return {

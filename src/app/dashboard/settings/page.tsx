@@ -37,8 +37,7 @@ export default async function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>{user.email}</CardDescription>
+          <CardTitle>Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <ProfileForm fullName={profile?.full_name ?? ""} institution={profile?.institution ?? null} />
@@ -48,9 +47,10 @@ export default async function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Email</CardTitle>
+          <CardDescription>Current: {user.email}</CardDescription>
         </CardHeader>
         <CardContent>
-          <EmailForm currentEmail={user.email ?? ""} />
+          <EmailForm />
         </CardContent>
       </Card>
 

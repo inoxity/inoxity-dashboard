@@ -126,6 +126,76 @@ export async function sendRoleChangedEmail(args: {
   });
 }
 
+// The public "Inoxity updates" mailing list (/updates). Contacts live in
+// Resend, in the segment RESEND_SEGMENT_ID names, and announcements go out
+// from Resend's Broadcasts page — which adds the unsubscribe link itself —
+// so nothing about subscribers is ever stored in inoxity_backend.
+// Note: contact creation needs a Full access API key; a "Sending access"
+// key can still send email but will fail here.
+export async function addMailingListContact(args: {
+  email: string;
+  firstName?: string;
+}): Promise<SendEmailResult> {
+  const resend = client();
+  const segmentId = process.env.RESEND_SEGMENT_ID;
+  if (!resend || !segmentId) {
+    console.error("[addMailingListContact] RESEND_API_KEY or RESEND_SEGMENT_ID is not set — contact not added");
+    return { error: "The mailing list isn't set up yet." };
+  }
+
+  const { error: createError } = await resend.contacts.create({
+    email: args.email,
+    firstName: args.firstName || undefined,
+    segments: [{ id: segmentId }],
+  });
+
+  if (createError) {
+    // Most likely the address is already a contact (e.g. signed up twice).
+    // Make sure it's in the segment and report success either way, so the
+    // form never reveals whether an address was already on the list — and
+    // skip the welcome email, since they've already had one.
+    const { error: addError } = await resend.contacts.segments.add({ email: args.email, segmentId });
+    if (addError) {
+      console.error("[addMailingListContact]", createError.name, createError.message, "/", addError.name, addError.message);
+      return { error: "Something went wrong adding you to the list." };
+    }
+    return { error: null };
+  }
+
+  // The contact is already saved, so a failed welcome email is logged
+  // (inside sendEmail) but doesn't turn the signup itself into an error.
+  await sendMailingListWelcomeEmail({ to: args.email, firstName: args.firstName });
+  return { error: null };
+}
+
+async function sendMailingListWelcomeEmail(args: { to: string; firstName?: string }): Promise<SendEmailResult> {
+  const greeting = args.firstName ? `Hi ${escapeHtml(args.firstName)},` : "Hi there,";
+  return sendEmail({
+    to: args.to,
+    subject: "You're on the Inoxity mailing list",
+    html: `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;">
+        <p style="font-size:13px;font-weight:700;letter-spacing:0.15em;color:#6b8683;margin:0 0 32px;text-transform:uppercase;">
+          Inoxity
+        </p>
+        <h1 style="font-size:28px;font-weight:700;color:#111;margin:0 0 20px;">You're on the list</h1>
+        <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 16px;">${greeting}</p>
+        <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 16px;">
+          Thanks for your interest in Inoxity. It's still in active development and large-scale
+          validation — we'll email you when it's ready for use, along with occasional project updates.
+        </p>
+        <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 28px;">
+          Want early access in the meantime? Email Rachael at
+          <a href="mailto:rlkee@ucdavis.edu" style="color:#211129;">rlkee@ucdavis.edu</a>.
+        </p>
+        <p style="font-size:13px;color:#8a8a8a;margin:0;">
+          If you didn't sign up for this, you can safely ignore this email.
+        </p>
+      </div>
+    `,
+  });
+}
+
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]!)
