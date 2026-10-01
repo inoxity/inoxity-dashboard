@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import type { StudyConfiguration } from "@/lib/study-schema";
 import { generateStudyBackendSQL } from "@/lib/generate-backend-sql";
+import { testDataBackendConnection } from "@/lib/study-actions";
+import type { BackendCheckResult } from "@/lib/backend-connection-check";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TextField } from "../field-primitives";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
@@ -18,13 +21,14 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-function downloadSetupSQL(config: StudyConfiguration) {
-  const sql = generateStudyBackendSQL(config);
+function downloadSetupSQL(config: StudyConfiguration, part: "structure" | "security") {
+  const sql = generateStudyBackendSQL(config)[part];
   const blob = new Blob([sql], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${config.identity.id || "study"}-backend-setup.sql`;
+  const studyId = config.identity.id?.trim() || "study";
+  link.download = part === "structure" ? `${studyId}-1-structure.sql` : `${studyId}-2-security.sql`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -43,6 +47,8 @@ export function StepBackend() {
   // the toggle-data-loss incident this guards against. Confirm before it takes effect; turning it
   // back on is always immediate, no confirmation needed.
   const [confirmDisableOpen, setConfirmDisableOpen] = useState(false);
+  const [connection, setConnection] = useState<BackendCheckResult | null>(null);
+  const [isTesting, startTesting] = useTransition();
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,18 +59,42 @@ export function StepBackend() {
         draft — you can add it later by editing the study, but activation is blocked until a backend is
         linked.
       </p>
-      <div>
-        <Button type="button" variant="outline" onClick={() => downloadSetupSQL(getValues())}>
-          Download setup SQL
-        </Button>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium">Set up your Supabase project</p>
         <FieldDescription>
-          Generates the full Supabase setup script for this study (schema, RLS, RPCs, and — if HealthKit is
-          enabled — a samples table narrowed to the data types configured earlier) so you don&apos;t have to
-          copy it by hand. Paste the whole thing into a brand-new Supabase project&apos;s SQL Editor. The
-          script is clearly split into a REQUIRED section (apply as-is — the app depends on it) and an
-          OPTIONAL security-hardening section your team owns and can edit or remove; Inoxity isn&apos;t
-          responsible for your project&apos;s security configuration beyond what&apos;s required for the
-          app to function.
+          Generated for this study (including only the Apple Health data types and features it uses). In a
+          brand-new Supabase project&apos;s SQL Editor, run file 1 first, then file 2.
+        </FieldDescription>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={() => downloadSetupSQL(getValues(), "structure")}>
+            1. Download database structure SQL
+          </Button>
+          <Button type="button" variant="outline" onClick={() => downloadSetupSQL(getValues(), "security")}>
+            2. Download security SQL
+          </Button>
+        </div>
+        <FieldDescription>
+          <strong>File 1, database structure:</strong> the tables and functions the Inoxity app needs to store
+          and sync your study&apos;s data. <strong>File 2, security:</strong> a starting template of the access
+          rules the app needs. Don&apos;t skip it: without it, your tables are readable by anyone with the
+          project&apos;s anon key.
+        </FieldDescription>
+        <FieldDescription>
+          <strong>Important note:</strong> The Inoxity team does not provide or take responsibility for the
+          security of your study&apos;s database. Security rules must be developed based on study-specific and
+          institutional policies, so that they align with your study&apos;s requirements, including data
+          sensitivity, regulatory compliance (e.g., IRB, HIPAA), and ethical guidelines. The security file is a
+          template to get you started; your team should review and adapt it. For an overview, see
+          Supabase&apos;s{" "}
+          <a
+            href="https://supabase.com/docs/guides/database/postgres/row-level-security"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Row Level Security guide
+          </a>
+          .
         </FieldDescription>
       </div>
       <Controller
@@ -174,6 +204,48 @@ export function StepBackend() {
             description="The public anon/publishable key from your project's Settings → API — never the service_role key."
             placeholder="eyJhbGciOi..."
           />
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="self-start"
+              disabled={isTesting}
+              onClick={() =>
+                startTesting(async () => {
+                  setConnection(null);
+                  setConnection(await testDataBackendConnection(getValues()));
+                })
+              }
+            >
+              {isTesting ? "Testing…" : "Test connection"}
+            </Button>
+            <FieldDescription>
+              Connects to your project the way the app does when a participant enrolls, and checks that its
+              Backend ID, study ID, and enrollment code match this study. Each test leaves one empty anonymous
+              user in your project&apos;s Authentication list.
+            </FieldDescription>
+            {connection?.status === "ok" && (
+              <Alert>
+                <AlertDescription>Connected. Your Supabase project matches this study.</AlertDescription>
+              </Alert>
+            )}
+            {connection?.status === "problem" && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  <ul className="flex list-disc flex-col gap-1 pl-4">
+                    {connection.messages.map((message) => (
+                      <li key={message}>{message}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+            {connection?.status === "unverified" && (
+              <Alert>
+                <AlertDescription>{connection.message}</AlertDescription>
+              </Alert>
+            )}
+          </div>
         </>
       )}
     </div>

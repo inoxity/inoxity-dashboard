@@ -10,7 +10,7 @@ The bundled `StudyConfigurationTemplate.json` in the app still declares version 
 | --- | --- | --- |
 | `schemaVersion` | Format version | New dashboard configurations use 8 |
 | `identity` | Stable ID, study code, display names, welcome copy | Stable ID is a lowercase slug; code is normalized uppercase |
-| `status` | Active, paused, or inactive participant state and message | Activation also requires a confirmed researcher email and an enabled, syntactically valid backend descriptor |
+| `status` | Active, paused, or inactive participant state and message | Activation also requires a confirmed researcher email and a linked backend whose identity matches the study, checked with a live connection test |
 | `schedule` | Study dates, time zone, duration, start-date mode | Dates are ISO; fixed mode requires a start date |
 | `participantID` | Participant identifier prompt and validation | Length bounds and optional valid regular expression |
 | `sleepSchedule` | Whether wake/bed times are collected | Required for wake/bed-relative schedules |

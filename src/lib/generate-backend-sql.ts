@@ -1,9 +1,18 @@
-import { HEALTHKIT_IDENTIFIERS, type StudyConfiguration } from "./study-schema";
+import { HEALTHKIT_IDENTIFIERS, normalizeStudyCode, type StudyConfiguration } from "./study-schema";
 
 /**
- * Generates a ready-to-paste Study Backend setup script for one study, so
+ * Generates a ready-to-paste Study Backend setup for one study, so
  * researchers no longer have to hand-copy the manual walkthrough in
  * inoxity_v2/supabase/study_backend_template/README.md.
+ *
+ * It's delivered as TWO scripts, run in order: `structure` (tables, functions,
+ * the Storage bucket, the identity seed row) and then `security` (row level
+ * security, policies, and who may call each function — every `enable row
+ * level security` / `create policy` / `revoke` / `grant`). Each migration below
+ * is kept as a structure constant plus a matching `*_SECURITY` constant whose
+ * statements were moved out of it verbatim, so applying structure + security
+ * builds exactly the same database the old single script did. Keep it that
+ * way: any new access rule goes in a `*_SECURITY` constant, never inline.
  *
  * The boilerplate migrations below (001-004) are copied verbatim from that
  * same file in the separate inoxity_v2 repo — there's no shared import
@@ -13,6 +22,11 @@ import { HEALTHKIT_IDENTIFIERS, type StudyConfiguration } from "./study-schema";
  * narrowed to this study's configured `healthKit.identifiers` (one table
  * per type, not the full ten-type list); media included only when enabled.
  */
+
+export interface SplitSQL {
+  structure: string;
+  security: string;
+}
 
 // Escapes a value for safe use inside a single-quoted SQL string literal.
 // identity.id/code are otherwise unrestricted strings in the Zod schema
@@ -62,21 +76,10 @@ create table public.withdrawal_requests (
   requested_at timestamptz not null, created_at timestamptz not null default now(), processed_at timestamptz
 );`;
 
-const MIGRATION_002_RLS_AND_RPCS = `-- ================================================================
+const MIGRATION_002_RPCS = `-- ================================================================
 -- STUDY DATA BACKEND ONLY — apply to exactly one Study Backend.
 -- All RPCs bind writes to auth.uid() and the immutable backend identity.
 -- ================================================================
-alter table public.study_backend_metadata enable row level security;
-alter table public.participants enable row level security;
-alter table public.study_enrollments enable row level security;
-alter table public.withdrawal_requests enable row level security;
-revoke all on all tables in schema public from anon, authenticated;
-create policy participant_owns_self on public.participants for select to authenticated using (auth_user_id = auth.uid());
-create policy participant_owns_enrollment on public.study_enrollments for select to authenticated
- using (participant_id in (select p.id from public.participants p where p.auth_user_id = auth.uid()));
-create policy participant_owns_withdrawal on public.withdrawal_requests for select to authenticated
- using (participant_id in (select p.id from public.participants p where p.auth_user_id = auth.uid()));
-
 create or replace function public.get_study_backend_identity()
 returns table (backend_instance_id uuid, stable_study_id text, expected_study_code text,
  supported_configuration_schema_version integer, is_active boolean)
@@ -205,7 +208,18 @@ language plpgsql security definer set search_path = pg_catalog, public as $$ dec
     or r.requested_at <> submit_withdrawal_request.requested_at::timestamptz
     then raise exception 'conflicting_idempotency_key' using errcode='23505'; end if;
  return query select r.id;
-end $$;
+end $$;`;
+
+const MIGRATION_002_SECURITY = `alter table public.study_backend_metadata enable row level security;
+alter table public.participants enable row level security;
+alter table public.study_enrollments enable row level security;
+alter table public.withdrawal_requests enable row level security;
+revoke all on all tables in schema public from anon, authenticated;
+create policy participant_owns_self on public.participants for select to authenticated using (auth_user_id = auth.uid());
+create policy participant_owns_enrollment on public.study_enrollments for select to authenticated
+ using (participant_id in (select p.id from public.participants p where p.auth_user_id = auth.uid()));
+create policy participant_owns_withdrawal on public.withdrawal_requests for select to authenticated
+ using (participant_id in (select p.id from public.participants p where p.auth_user_id = auth.uid()));
 
 revoke all on function public.get_study_backend_identity(), public.ensure_participant() from public, anon;
 revoke all on function public.register_study_enrollment(text,text,text,text,text,text,integer,integer) from public, anon;
@@ -245,9 +259,9 @@ create table public.survey_events (
   check (client_event_id = 'survey-event.' || occurrence_id || '.' || event_type),
   check (event_type <> 'opened' or opened_at = event_timestamp),
   check (event_type <> 'completed' or (completed_at = event_timestamp and opened_at is not null and opened_at <= completed_at))
-);
+);`;
 
-alter table public.survey_events enable row level security;
+const MIGRATION_003_SECURITY = `alter table public.survey_events enable row level security;
 revoke all on public.survey_events from anon, authenticated;`;
 
 const MIGRATION_004_SURVEY_EVENT_RPC = `-- STUDY DATA BACKEND ONLY. The RPC binds every event to auth.uid(), its enrollment,
@@ -291,9 +305,9 @@ begin
     or existing.occurrence_id<>submit_survey_event.occurrence_id or existing.event_type<>submit_survey_event.event_type
     or existing.event_timestamp<>submit_survey_event.event_timestamp::timestamptz then raise exception 'conflicting_idempotency_key'; end if;
  return query select existing.id,existing.received_at,not inserted;
-end $$;
+end $$;`;
 
-revoke all on function public.submit_survey_event(text,text,text,text,text,text,text,text,text,text,text,integer,integer,text,text,text) from public;
+const MIGRATION_004_SECURITY = `revoke all on function public.submit_survey_event(text,text,text,text,text,text,text,text,text,text,text,integer,integer,text,text,text) from public;
 grant execute on function public.submit_survey_event(text,text,text,text,text,text,text,text,text,text,text,integer,integer,text,text,text) to authenticated;`;
 
 // One dedicated table per HealthKit type (mirrors the pre-dashboard app's
@@ -582,7 +596,7 @@ ${compareLine}
 // name/params/return shape as the reference template either way, so the
 // Swift app's RPC call site never needs to know which types a given study
 // picked.
-function buildHealthKitSection(identifiers: string[]): string {
+function buildHealthKitSection(identifiers: string[]): SplitSQL {
   const specs = identifiers
     .map((id) => HEALTHKIT_TABLE_SPECS[id as keyof typeof HEALTHKIT_TABLE_SPECS])
     .filter((spec): spec is HealthKitTableSpec => !!spec);
@@ -594,7 +608,7 @@ function buildHealthKitSection(identifiers: string[]): string {
   const revokeList = specs.map((spec) => `public.${spec.table}`).join(", ");
   const branches = specs.map((spec, i) => healthKitRPCBranch(spec, i === 0)).join("\n\n");
 
-  return `-- STUDY DATA BACKEND ONLY
+  const structure = `-- STUDY DATA BACKEND ONLY
 -- Readable HealthKit samples, one table per configured data type
 -- (${identifiers.join(", ")}). Never apply to inoxity_backend.
 --
@@ -606,9 +620,6 @@ function buildHealthKitSection(identifiers: string[]): string {
 -- part of a sample's identity the way sample_start/numeric_value are.
 
 ${tables}
-
-${enableRLS}
-revoke all on ${revokeList} from anon, authenticated;
 
 ${comments}
 
@@ -647,10 +658,15 @@ ${branches}
       raise exception 'unsupported identifier' using errcode='22023';
     end if;
   end loop;
-end; $$;
+end; $$;`;
+
+  const security = `${enableRLS}
+revoke all on ${revokeList} from anon, authenticated;
 
 revoke all on function public.submit_healthkit_samples(uuid,text,uuid,jsonb) from public, anon;
 grant execute on function public.submit_healthkit_samples(uuid,text,uuid,jsonb) to authenticated;`;
+
+  return { structure, security };
 }
 
 // One-time snapshot (biological sex, blood type, DOB, Fitzpatrick skin type, wheelchair use), not
@@ -658,8 +674,8 @@ grant execute on function public.submit_healthkit_samples(uuid,text,uuid,jsonb) 
 // shape/param-naming conventions above rather than the batched submit_healthkit_samples RPC.
 // Included in the generated script independently of buildHealthKitSection — a study can have
 // healthKit.includeCharacteristics on with or without any sample identifiers configured.
-function buildCharacteristicsSection(): string {
-  return `-- STUDY DATA BACKEND ONLY
+function buildCharacteristicsSection(): SplitSQL {
+  const structure = `-- STUDY DATA BACKEND ONLY
 -- One-time HealthKit characteristics snapshot (biological sex, blood type, date of birth,
 -- Fitzpatrick skin type, wheelchair use) — a single upserted row per participant, not a time
 -- series. Never apply to inoxity_backend.
@@ -673,9 +689,6 @@ create table public.participant_characteristics (
   uses_wheelchair boolean,
   updated_at timestamptz not null default now()
 );
-
-alter table public.participant_characteristics enable row level security;
-revoke all on public.participant_characteristics from anon, authenticated;
 
 comment on table public.participant_characteristics is 'STUDY DATA BACKEND ONLY. One-time HealthKit characteristics snapshot per participant, upserted via submit_participant_characteristics.';
 
@@ -702,10 +715,15 @@ language plpgsql security definer set search_path = pg_catalog, public as $$ dec
    uses_wheelchair = excluded.uses_wheelchair, updated_at = excluded.updated_at
  returning * into v_row;
  return query select v_row.participant_id, v_row.updated_at;
-end $$;
+end $$;`;
+
+  const security = `alter table public.participant_characteristics enable row level security;
+revoke all on public.participant_characteristics from anon, authenticated;
 
 revoke all on function public.submit_participant_characteristics(text,text,text,text,text,date,boolean) from public, anon;
 grant execute on function public.submit_participant_characteristics(text,text,text,text,text,date,boolean) to authenticated;`;
+
+  return { structure, security };
 }
 
 const MIGRATION_007_MEDIA_UPLOADS = `-- STUDY DATA BACKEND ONLY — apply to exactly one Study Backend.
@@ -730,15 +748,16 @@ create table public.media_uploads (
   created_at timestamptz not null default now()
 );
 
-alter table public.media_uploads enable row level security;
-revoke all on public.media_uploads from anon, authenticated;
-
 comment on table public.media_uploads is
 'STUDY DATA BACKEND ONLY. Metadata for files uploaded to the user-uploads Storage bucket; the file itself lives in Storage, this only records where and what it is.';
 
 insert into storage.buckets (id, name, public)
 values ('user-uploads', 'user-uploads', false)
-on conflict (id) do nothing;
+on conflict (id) do nothing;`;
+
+// Participants may only touch files under their own auth.uid() folder in the private bucket.
+const MIGRATION_007_SECURITY = `alter table public.media_uploads enable row level security;
+revoke all on public.media_uploads from anon, authenticated;
 
 create policy "Participants can upload their own files"
   on storage.objects
@@ -799,9 +818,9 @@ begin
   values(p.id,enrollment_id::uuid,expected_stable_study_id,submit_media_upload.storage_path,submit_media_upload.mime_type,submit_media_upload.bytes,submit_media_upload.category_id,submit_media_upload.duration_seconds,submit_media_upload.represented_date,submit_media_upload.configuration_schema_version,submit_media_upload.configuration_revision)
   returning * into v_row;
   return query select v_row.id, v_row.received_at;
-end $$;
+end $$;`;
 
-revoke all on function public.submit_media_upload(text,text,text,text,text,text,bigint,numeric,date,integer,integer) from public, anon;
+const MIGRATION_008_SECURITY = `revoke all on function public.submit_media_upload(text,text,text,text,text,text,bigint,numeric,date,integer,integer) from public, anon;
 grant execute on function public.submit_media_upload(text,text,text,text,text,text,bigint,numeric,date,integer,integer) to authenticated;`;
 
 // Replaces submit_withdrawal_request (defined in MIGRATION_002_RLS_AND_RPCS above) with a
@@ -882,19 +901,17 @@ begin
  end if;
 
  return query select r.id, v_paths;
-end $$;
+end $$;`;
 
-revoke all on function public.submit_withdrawal_request(text,text,text,text,text,text) from public, anon;
+const MIGRATION_009_SECURITY = `revoke all on function public.submit_withdrawal_request(text,text,text,text,text,text) from public, anon;
 grant execute on function public.submit_withdrawal_request(text,text,text,text,text,text) to authenticated;`;
 
 const PLACEHOLDER_BACKEND_ID = "00000000-0000-0000-0000-000000000000";
 
-// Section 7 (optional) — additive-only, never touches anything sections 1-6 already created.
-// Split out from the REQUIRED sections above so it's unambiguous which parts of this script the
-// app actually depends on (sections 1-6 — schema, RLS, RPCs, seed row) versus which parts are
-// suggestions the research team can edit, replace, or delete entirely without breaking
-// enrollment/sync. See the disclaimer this function prepends to the section itself, and the same
-// copy shown next to the "Download setup SQL" button in the wizard.
+// Optional tail of the security file — additive-only, never touches anything the required
+// sections created. Kept separate so it's unambiguous which access rules the app depends on
+// versus which are suggestions the research team can edit, replace, or delete entirely without
+// breaking enrollment/sync.
 function buildSecurityHardeningSection(config: StudyConfiguration): string {
   const pid = config.participantID;
   const constraintParts: string[] = [];
@@ -915,17 +932,12 @@ function buildSecurityHardeningSection(config: StudyConfiguration): string {
 
   return [
     "-- ================================================================",
-    "-- 7. OPTIONAL — Security hardening (you own this section)",
+    "-- OPTIONAL — Extra security hardening suggestions",
     "-- ================================================================",
-    "-- Everything above (sections 1-6) is REQUIRED — the app will not enroll participants, sync",
-    "-- data, or process withdrawals correctly without it, so it's generated to be applied exactly",
-    "-- as-is. Everything below this line is NOT required for the app to function. It's a starting",
-    "-- set of suggestions for your team to review, edit, extend, or delete — your Supabase project",
-    "-- is yours alone (Inoxity never has admin access to it, see the Data Backend step's own",
-    "-- description), and your team is responsible for deciding what additional security posture",
-    "-- is appropriate for your study's data and IRB/consent obligations. Inoxity is not",
-    "-- responsible for the security configuration of your own Supabase project beyond the",
-    "-- REQUIRED sections above.",
+    "-- Nothing below this line is needed for the Inoxity app to work. These are suggestions for",
+    "-- your team to review, edit, extend, or delete, based on your study's data and IRB/consent",
+    "-- obligations. As with the rest of this file, Inoxity is not responsible for your project's",
+    "-- security configuration.",
     "",
     participantIdConstraintSQL,
     "",
@@ -944,138 +956,159 @@ function buildSecurityHardeningSection(config: StudyConfiguration): string {
   ].join("\n");
 }
 
+// Shown at the top of the security file (and, shortened, next to its download button). Adapted
+// from the Stanford Screenomics platform's Firebase setup guide, section 2.3.
+export const SECURITY_DISCLAIMER_LINES = [
+  "IMPORTANT NOTE: The Inoxity team does not provide or take responsibility for the security of",
+  "your study's database. Security rules must be developed based on study-specific and",
+  "institutional policies, so that they align with your study's requirements, including data",
+  "sensitivity, regulatory compliance (e.g., IRB, HIPAA), and ethical guidelines. This file is a",
+  "starting template only: it contains the access rules the Inoxity app needs to work with your",
+  "database, and your team should review and adapt it. For an overview of how these rules work,",
+  "see Supabase's Row Level Security guide:",
+  "https://supabase.com/docs/guides/database/postgres/row-level-security",
+];
+
+function banner(title: string): string {
+  return [
+    "-- ================================================================",
+    `-- ${title}`,
+    "-- ================================================================",
+  ].join("\n");
+}
+
 /**
- * Builds a single, ready-to-paste SQL script that sets up a brand-new,
- * dedicated Supabase project as this study's Data Backend: the same
- * boilerplate schema every study gets, plus (if HealthKit is enabled) the
- * samples table narrowed to this study's own configured data types, plus a
- * pre-filled seed row for that project's identity, plus (unless opted out) a
- * trailing optional security-hardening section — see buildSecurityHardeningSection above.
+ * Builds this study's two Data Backend setup scripts — see the file header for the split.
+ * `structure`: the same boilerplate schema every study gets, plus (if HealthKit is enabled) the
+ * samples tables narrowed to this study's own configured data types, plus a pre-filled seed row
+ * for the project's identity. `security`: the matching access rules, plus (unless opted out) a
+ * trailing optional hardening section — see buildSecurityHardeningSection above.
  */
 export function generateStudyBackendSQL(
   config: StudyConfiguration,
   options?: { includeHardening?: boolean },
-): string {
+): SplitSQL {
   const includeHardening = options?.includeHardening ?? true;
   const backendId = config.dataBackend?.backendId || PLACEHOLDER_BACKEND_ID;
-  const studyLabel = config.identity.displayName || config.identity.id || "this study";
+  // The app compares the seed row against the normalized (trimmed, uppercased) code, and the
+  // table itself has a check constraint requiring it — so never seed the raw form value.
+  const studyCode = normalizeStudyCode(config.identity.code ?? "");
+  const stableStudyId = (config.identity.id ?? "").trim();
+  const studyLabel = config.identity.displayName || stableStudyId || "this study";
+  const healthKit =
+    config.healthKit.enabled && config.healthKit.identifiers.length > 0
+      ? buildHealthKitSection(config.healthKit.identifiers)
+      : null;
+  const characteristics = config.healthKit.includeCharacteristics ? buildCharacteristicsSection() : null;
 
-  const sections: string[] = [
-    `-- Inoxity Study Backend setup script for "${studyLabel}" (${config.identity.code || "no code set"})`,
-    "-- Generated by the Inoxity Researcher Dashboard from this study's saved configuration.",
-    "--",
-    "-- Apply this ENTIRE script, in order, in a brand-new Supabase project's SQL",
-    "-- Editor — a project dedicated to only this study; never reuse one across",
-    "-- studies (see supabase/study_backend_template/README.md in the inoxity_v2",
-    "-- repo, \"one project can only ever represent one study\").",
-    "--",
-    "-- Sections 1-6 are REQUIRED — apply them exactly as generated. Section 7, if present, is",
-    "-- OPTIONAL security hardening your team owns and can edit or remove — see its own banner.",
-    "",
-    "-- ================================================================",
-    "-- 1. Boilerplate schema — identical for every research team's study",
-    "-- ================================================================",
+  const structure: string[] = [
+    [
+      `-- Inoxity Study Backend setup — FILE 1 OF 2: DATABASE STRUCTURE`,
+      `-- Study: "${studyLabel}" (${studyCode || "no code set"})`,
+      "-- Generated by the Inoxity Researcher Dashboard from this study's saved configuration.",
+      "--",
+      "-- Run this file FIRST, in full, in a brand-new Supabase project's SQL Editor — a project",
+      "-- dedicated to only this study; never reuse one across studies (\"one project can only ever",
+      "-- represent one study\"). It creates the tables and functions the Inoxity app uses.",
+      "--",
+      "-- Then run FILE 2 OF 2 (the security file) in the same project. Don't skip it: without it,",
+      "-- Supabase's defaults leave these tables readable by anyone with the project's anon key,",
+      "-- and that key ships inside the app.",
+    ].join("\n"),
+    banner("1. Boilerplate schema — identical for every research team's study"),
     MIGRATION_001_SCHEMA,
-    "-- ================================================================",
-    "-- 1b. Document this study's configured participant-ID label",
-    "-- ================================================================",
+    banner("1b. Document this study's configured participant-ID label"),
     // participant_identifier is a fixed physical column name shared by every
     // study's schema — it can never literally be renamed to match this
     // study's configured label (e.g. "SONA ID"). This comment makes that
     // label visible when a researcher inspects the column in Supabase
     // Studio, without touching data, constraints, or RLS in any way.
     `comment on column public.study_enrollments.participant_identifier is '${sqlLiteral(config.participantID.label || "Participant ID")}';`,
-    MIGRATION_002_RLS_AND_RPCS,
+    MIGRATION_002_RPCS,
     MIGRATION_003_SURVEY_EVENTS,
     MIGRATION_004_SURVEY_EVENT_RPC,
   ];
+  const security: string[] = [
+    [
+      `-- Inoxity Study Backend setup — FILE 2 OF 2: SECURITY`,
+      `-- Study: "${studyLabel}" (${studyCode || "no code set"})`,
+      "-- Generated by the Inoxity Researcher Dashboard from this study's saved configuration.",
+      "--",
+      ...SECURITY_DISCLAIMER_LINES.map((line) => `-- ${line}`),
+      "--",
+      "-- Run this AFTER file 1 (the database structure file) has finished, in the same project. It",
+      "-- turns on Row Level Security, limits each participant to their own rows and files, and",
+      "-- allows signed-in participants to call only the functions the app uses. Don't skip it:",
+      "-- without it, Supabase's defaults leave your tables readable by anyone with the project's",
+      "-- anon key, and that key ships inside the app.",
+    ].join("\n"),
+    banner("1. Core tables and enrollment functions"),
+    MIGRATION_002_SECURITY,
+    banner("1b. Survey events"),
+    MIGRATION_003_SECURITY,
+    MIGRATION_004_SECURITY,
+  ];
 
-  if (config.healthKit.enabled && config.healthKit.identifiers.length > 0) {
-    sections.push(
-      "-- ================================================================",
-      "-- 2. HealthKit samples — one table per configured data type",
-      "-- ================================================================",
-      buildHealthKitSection(config.healthKit.identifiers),
-    );
+  if (healthKit) {
+    structure.push(banner("2. HealthKit samples — one table per configured data type"), healthKit.structure);
+    security.push(banner("2. HealthKit samples"), healthKit.security);
   } else {
-    sections.push(
-      "-- ================================================================",
-      "-- 2. HealthKit samples — skipped, this study doesn't use HealthKit",
-      "-- ================================================================",
-    );
+    structure.push(banner("2. HealthKit samples — skipped, this study doesn't use HealthKit"));
   }
 
   // Independent of the samples section above — a study can request characteristics with or
   // without any sample identifiers configured (they're separate flags on healthKit).
-  if (config.healthKit.includeCharacteristics) {
-    sections.push(
-      "-- ================================================================",
-      "-- 2b. HealthKit characteristics — one-time snapshot per participant",
-      "-- ================================================================",
-      buildCharacteristicsSection(),
-    );
+  if (characteristics) {
+    structure.push(banner("2b. HealthKit characteristics — one-time snapshot per participant"), characteristics.structure);
+    security.push(banner("2b. HealthKit characteristics"), characteristics.security);
   } else {
-    sections.push(
-      "-- ================================================================",
-      "-- 2b. HealthKit characteristics — skipped, this study doesn't request them",
-      "-- ================================================================",
-    );
+    structure.push(banner("2b. HealthKit characteristics — skipped, this study doesn't request them"));
   }
 
   if (config.media.enabled) {
-    sections.push(
-      "-- ================================================================",
-      "-- 3. Media uploads",
-      "-- ================================================================",
-      MIGRATION_007_MEDIA_UPLOADS,
-      MIGRATION_008_MEDIA_UPLOAD_RPC,
-    );
+    structure.push(banner("3. Media uploads"), MIGRATION_007_MEDIA_UPLOADS, MIGRATION_008_MEDIA_UPLOAD_RPC);
+    security.push(banner("3. Media uploads (table and Storage bucket)"), MIGRATION_007_SECURITY, MIGRATION_008_SECURITY);
   } else {
-    sections.push(
-      "-- ================================================================",
-      "-- 3. Media uploads — skipped, this study doesn't use media",
-      "-- ================================================================",
-    );
+    structure.push(banner("3. Media uploads — skipped, this study doesn't use media"));
   }
 
-  sections.push(
-    "-- ================================================================",
-    "-- 4. Withdrawal and data deletion (applies to every study)",
-    "-- ================================================================",
-    MIGRATION_009_WITHDRAWAL_DELETION,
+  structure.push(banner("4. Withdrawal and data deletion (applies to every study)"), MIGRATION_009_WITHDRAWAL_DELETION);
+  security.push(banner("4. Withdrawal and data deletion"), MIGRATION_009_SECURITY);
+
+  structure.push(
+    banner("5. Seed this project's identity"),
+    [
+      "insert into public.study_backend_metadata (",
+      "  singleton, backend_instance_id, stable_study_id, expected_study_code,",
+      "  supported_configuration_schema_version, is_active",
+      ") values (",
+      "  true,",
+      config.dataBackend?.backendId
+        ? `  '${sqlLiteral(backendId)}',`
+        : `  '${PLACEHOLDER_BACKEND_ID}', -- ⚠ REPLACE with a freshly generated UUID (e.g. \`uuidgen\`) before running this — a Backend ID hasn't been set on the dashboard's Data Backend step yet`,
+      `  '${sqlLiteral(stableStudyId)}',`,
+      `  '${sqlLiteral(studyCode)}',`,
+      `  ${config.schemaVersion},`,
+      "  true",
+      ");",
+    ].join("\n"),
+    banner("Next: run file 2 of 2 (security) in this same project"),
   );
 
-  sections.push(
-    "-- ================================================================",
-    "-- 5. Seed this project's identity",
-    "-- ================================================================",
-    "insert into public.study_backend_metadata (",
-    "  singleton, backend_instance_id, stable_study_id, expected_study_code,",
-    "  supported_configuration_schema_version, is_active",
-    ") values (",
-    "  true,",
-    config.dataBackend?.backendId
-      ? `  '${sqlLiteral(backendId)}',`
-      : `  '${PLACEHOLDER_BACKEND_ID}', -- ⚠ REPLACE with a freshly generated UUID (e.g. \`uuidgen\`) before running this — a Backend ID hasn't been set on the dashboard's Data Backend step yet`,
-    `  '${sqlLiteral(config.identity.id)}',`,
-    `  '${sqlLiteral(config.identity.code)}',`,
-    `  ${config.schemaVersion},`,
-    "  true",
-    ");",
-    "",
-    "-- ================================================================",
-    "-- 6. Next steps",
-    "-- ================================================================",
-    "-- 1. Enable anonymous sign-ins for this project: Authentication > Providers.",
-    config.dataBackend?.backendId
-      ? "-- 2. This study's Backend ID, URL, and anon key are already saved on the dashboard's Data Backend step — nothing else to enter there."
-      : "-- 2. Get this project's URL and anon key from Settings > API, then enter them — along with the Backend ID used above — into the dashboard's \"Data Backend\" wizard step, and save the study.",
-    "-- 3. Test enrollment from the app using this study's enrollment code before going live.",
+  security.push(
+    banner("5. Next steps"),
+    [
+      "-- 1. Enable anonymous sign-ins for this project: Authentication > Providers.",
+      config.dataBackend?.backendId
+        ? "-- 2. This study's Backend ID, URL, and anon key are already saved on the dashboard's Data Backend step — nothing else to enter there."
+        : "-- 2. Get this project's URL and anon key from Settings > API, then enter them — along with the Backend ID used in file 1 — into the dashboard's \"Data Backend\" wizard step, and save the study.",
+      "-- 3. Use \"Test connection\" on the Data Backend step, then test enrollment from the app using this study's enrollment code before going live.",
+    ].join("\n"),
   );
 
   if (includeHardening) {
-    sections.push(buildSecurityHardeningSection(config));
+    security.push(buildSecurityHardeningSection(config));
   }
 
-  return sections.join("\n\n");
+  return { structure: structure.join("\n\n"), security: security.join("\n\n") };
 }

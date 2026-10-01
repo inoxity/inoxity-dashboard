@@ -309,7 +309,18 @@ const IANA_TIME_ZONES: Set<string> =
     ? new Set([...Intl.supportedValuesOf("timeZone"), "UTC", "GMT"])
     : new Set(["UTC", "GMT"]);
 
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
+// The app parses these with a strict yyyy-MM-dd DateFormatter (StudyConfigurationValidator), which
+// rejects impossible dates like 2026-02-31 and treats the whole study as invalid — so the shape
+// alone isn't enough; the date must actually exist on the calendar.
+export function isRealCalendarDate(value: string): boolean {
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+  .refine(isRealCalendarDate, "Not a real date — check the month and day");
 
 function tryCompileRegex(value: string): boolean {
   try {
@@ -544,7 +555,9 @@ const mediaCategorySchema = z.object({
   id: strictSlug,
   displayName: z.string().trim().min(1),
   description: z.string(),
-  acceptedTypes: z.array(z.enum(["photo", "video"])),
+  // The app requires every category to accept at least one type (validateMedia in
+  // StudyConfigurationValidator.swift).
+  acceptedTypes: z.array(z.enum(["photo", "video"])).min(1, "Pick at least one accepted type"),
   // Deprecated: not exposed anywhere in the wizard (06-features-media.tsx only lets a researcher
   // set representedDateRequired below) and never enforced by the Swift app either — no blocking
   // UI or completion gate reads it. Kept in the schema, still defaulting false, purely so
@@ -846,6 +859,15 @@ export const studyConfigurationSchema = z
       }
       if (end && reminder.activeEndDate && reminder.activeEndDate > end) {
         ctx.addIssue({ code: "custom", path: [...path, "activeEndDate"], message: "Can't end after the study's own end date" });
+      }
+      // The app rejects the whole study if a one-time reminder falls outside the study window
+      // (StudyConfigurationValidator.swift, the `schedule?.date` check in the reminders loop).
+      const oneTimeDate = reminder.schedule?.pattern === "oneTime" ? reminder.schedule.date : null;
+      if (oneTimeDate && start && oneTimeDate < start) {
+        ctx.addIssue({ code: "custom", path: [...path, "schedule", "date"], message: "Can't be before the study's own start date" });
+      }
+      if (oneTimeDate && end && oneTimeDate > end) {
+        ctx.addIssue({ code: "custom", path: [...path, "schedule", "date"], message: "Can't be after the study's own end date" });
       }
 
       if (reminder.kind === "survey") {

@@ -41,7 +41,9 @@ The dashboard and iOS app both validate configuration. Common constraints includ
 - media categories can only accept types allowed by the overall media configuration;
 - wake/bed-relative schedules require sleep-schedule collection;
 - random windows must fit within a 24-hour day;
-- activation requires a confirmed researcher email, an Active configuration, an enabled Study Backend descriptor, and successful dashboard schema validation. Activation does not test backend connectivity or provisioning.
+- dates must be real calendar dates, and a one-time reminder must fall within the study's start and end dates;
+- each media category must accept at least one type;
+- activation requires a confirmed researcher email, an Active configuration, a linked Study Backend, and a valid configuration whose end date hasn't passed, and it tests the connection to the Study Backend the same way the app does at enrollment.
 
 ## Editing an active study
 

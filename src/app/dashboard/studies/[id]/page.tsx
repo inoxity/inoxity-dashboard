@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ActivateStudyControl } from "@/components/study-wizard/activate-study-control";
 import { ArchiveStudyControl } from "@/components/study-wizard/archive-study-control";
 import { DeleteStudyControl } from "@/components/study-wizard/delete-study-control";
+import { ActivationChecklist } from "@/components/study-wizard/activation-checklist";
+import { checkActivationReadiness } from "@/lib/activation-check";
 import type { CollaboratorRole, Study } from "@/lib/supabase/types";
 
 export const metadata = {
@@ -52,6 +54,8 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
   const canArchive = role === "owner" || role === "admin";
 
   const config = study.configuration_json;
+  // Offline checks only (no live Data Backend test on page load — that runs on Activate).
+  const readiness = checkActivationReadiness(config);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-16">
@@ -98,10 +102,33 @@ export default async function StudyDetailPage({ params }: { params: Promise<{ id
         </CardContent>
       </Card>
 
+      {!study.archived_at && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{study.is_active ? "Enrollment check" : "Ready to activate?"}</CardTitle>
+            <CardDescription>
+              Checked against the same rules the Inoxity app uses when a participant enrolls. Your Data
+              Backend connection is also tested when you click Activate.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ActivationChecklist
+              blockers={readiness.blockers}
+              warnings={readiness.warnings}
+              readyMessage={
+                study.is_active
+                  ? "No problems found — participants can enroll."
+                  : "No problems found — participants will be able to enroll once this study is active."
+              }
+            />
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
         {canEdit && (
           <>
-            <ActivateStudyControl studyId={study.id} isActive={study.is_active} />
+            <ActivateStudyControl studyId={study.id} isActive={study.is_active} warnings={readiness.warnings} />
             <Button
               variant="outline"
               nativeButton={false}
