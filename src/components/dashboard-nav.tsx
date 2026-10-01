@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { InoxityMark } from "@/components/inoxity-mark";
 import { signOut } from "@/lib/auth-actions";
+import { DOCS_URL } from "@/lib/links";
 import { Button } from "@/components/ui/button";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/team", label: "Research Team" },
   { href: "/dashboard/settings", label: "Settings" },
-  { href: "/dashboard/docs", label: "Documentation" },
 ];
+
+const LINK_CLASS = "shrink-0 rounded-lg px-2.5 py-1.5 text-sm transition-colors";
 
 export function DashboardNav() {
   const pathname = usePathname();
@@ -31,7 +33,7 @@ export function DashboardNav() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "shrink-0 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
+                  LINK_CLASS,
                   active ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
@@ -39,6 +41,16 @@ export function DashboardNav() {
               </Link>
             );
           })}
+          {/* Opens Read the Docs in a new tab so the dashboard stays open. */}
+          <a
+            href={DOCS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(LINK_CLASS, "flex items-center gap-1 text-muted-foreground hover:bg-muted hover:text-foreground")}
+          >
+            Documentation
+            <ExternalLink className="size-3" aria-hidden />
+          </a>
         </div>
         <form action={signOut} className="justify-self-end">
           <Button type="submit" variant="outline" size="sm" className="gap-1.5 rounded-full">

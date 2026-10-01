@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { HeroOrbits } from "@/components/dashboard/hero-orbits";
 import { StudyListCard, type StudyListCardData } from "@/components/dashboard/study-list-card";
 import { ArchivedStudiesSection } from "@/components/dashboard/archived-studies-section";
+import { DOCS_URL } from "@/lib/links";
 import { ROLE_LABELS, type CollaboratorRole, type Profile, type Study } from "@/lib/supabase/types";
 
 export const metadata = {
@@ -169,9 +170,9 @@ export default async function DashboardPage() {
       <p className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
         <HelpCircle className="size-4" />
         Need help? Check out our{" "}
-        <Link href="/dashboard/docs" className="text-primary hover:underline">
+        <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
           Documentation
-        </Link>{" "}
+        </a>{" "}
         or reach out to your research team.
       </p>
     </div>
