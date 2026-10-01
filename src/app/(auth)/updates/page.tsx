@@ -14,9 +14,9 @@ export default function UpdatesPage() {
             Stay in the loop
           </CardTitle>
           <CardDescription>
-            Inoxity is still in development and large-scale validation. Join the mailing list and we&apos;ll
-            let you know when it&apos;s ready for use, plus occasional project updates. You can unsubscribe
-            anytime.
+            Inoxity is undergoing active development and large-scale validation. Join the mailing list
+            and we&apos;ll let you know when it&apos;s ready for use, plus occasional project updates. You
+            can unsubscribe anytime.
           </CardDescription>
         </CardHeader>
         <CardContent>

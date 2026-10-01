@@ -181,8 +181,8 @@ async function sendMailingListWelcomeEmail(args: { to: string; firstName?: strin
         <h1 style="font-size:28px;font-weight:700;color:#111;margin:0 0 20px;">You're on the list</h1>
         <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 16px;">${greeting}</p>
         <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 16px;">
-          Thanks for your interest in Inoxity. It's still in active development and large-scale
-          validation — we'll email you when it's ready for use, along with occasional project updates.
+          Thanks for your interest in Inoxity. It's undergoing active development and large-scale
+          validation. We'll email you when it's ready for use, along with occasional project updates.
         </p>
         <p style="font-size:16px;line-height:1.5;color:#333;margin:0 0 28px;">
           Want early access in the meantime? Email Rachael at

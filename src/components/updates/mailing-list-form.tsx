@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { joinMailingList } from "@/lib/mailing-list-actions";
 import { authInitialState } from "@/lib/auth-state";
@@ -13,11 +14,21 @@ export function MailingListForm() {
 
   if (state.success) {
     return (
-      <Alert>
-        <AlertDescription>
-          You&apos;re on the list! We&apos;ll email you when Inoxity is ready, along with occasional updates.
-        </AlertDescription>
-      </Alert>
+      <div className="flex flex-col gap-4">
+        <Alert>
+          <AlertDescription>
+            You&apos;re on the list! We&apos;ll email you when Inoxity is ready, along with occasional updates.
+          </AlertDescription>
+        </Alert>
+        <div className="flex gap-3">
+          <Button variant="outline" nativeButton={false} render={<Link href="/" />}>
+            Back to home
+          </Button>
+          <Button nativeButton={false} render={<Link href="/login" />}>
+            Sign in
+          </Button>
+        </div>
+      </div>
     );
   }
 
@@ -45,9 +56,14 @@ export function MailingListForm() {
           </Alert>
         )}
 
-        <Button type="submit" disabled={isPending} className="self-start">
-          {isPending ? "Joining…" : "Join the mailing list"}
-        </Button>
+        <div className="flex items-center justify-between gap-3">
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Joining…" : "Join the mailing list"}
+          </Button>
+          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
+            Back to home
+          </Link>
+        </div>
       </FieldGroup>
     </form>
   );
