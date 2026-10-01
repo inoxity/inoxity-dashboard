@@ -2,8 +2,6 @@
 
 The dashboard currently authors **configuration schema version 8**. The iOS app validator accepts configuration formats **2 through 8** and supplies defaults for some fields introduced in later versions. Version acceptance does not guarantee that every older configuration and Study Backend combination is operationally compatible.
 
-The bundled `StudyConfigurationTemplate.json` in the app still declares version 5. It is a development fixture, not the source of truth for newly authored dashboard configurations. Current documentation therefore follows the dashboard's version 8 schema and confirms runtime behavior against the app's models and validator.
-
 ## Top-level sections
 
 | Section | Researcher meaning | Notable rules |
@@ -43,8 +41,8 @@ The configured minimum may be zero, the maximum must be at least one, and the mi
 
 ## Version compatibility
 
-Older configurations can omit fields introduced later. The Swift decoder supplies compatibility defaults for fields such as schedule anchors, HealthKit backfill, and start-date mode, while the dashboard migrates stored configurations to its current authoring version when editing. These mechanisms provide format compatibility only. Researchers must still verify the active configuration, app behavior, Study Backend metadata, and database support together.
+Older configurations can omit fields introduced later. The app supplies compatibility defaults for fields such as schedule anchors, HealthKit backfill, and start-date mode, while the dashboard migrates stored configurations to its current authoring version when editing. These mechanisms provide format compatibility only. Researchers must still verify the active configuration, app behavior, Study Backend metadata, and database support together.
 
 ## Activation checks
 
-Dashboard activation requires a confirmed researcher email, an enabled Study Backend descriptor, an Active configuration, and successful dashboard schema validation. Activation does not test whether the Study Backend is reachable or fully provisioned.
+Dashboard activation requires a confirmed researcher email, an enabled Study Backend descriptor, an Active configuration, and successful validation. It then connects to the Study Backend the way the app does at enrollment and confirms its backend ID, stable study ID, enrollment code, schema version, and active flag match the study.

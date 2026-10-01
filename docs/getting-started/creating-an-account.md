@@ -1,6 +1,6 @@
 # Creating a researcher account
 
-The researcher dashboard uses email-and-password accounts managed by its Control Backend Supabase project.
+The researcher dashboard uses email-and-password accounts.
 
 ## Sign up
 
@@ -15,7 +15,3 @@ The dashboard can display an email-confirmation reminder until the address is co
 ## Researcher versus participant identity
 
 Researcher accounts are not participant accounts. Participants do not sign into the iOS app with a researcher email or password. The participant app uses a study code and anonymous backend authentication, plus any study-specific participant identifier configured by the research team.
-
-## Administrative dependency
-
-Confirmation, reset, invitation, and change-email messages depend on the Control Backend's Supabase email configuration. Inoxity administrators can review [Customizing authentication emails](../administration/customizing-auth-emails.md).

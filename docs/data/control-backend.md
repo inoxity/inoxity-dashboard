@@ -18,6 +18,3 @@ The participant role is restricted to resolving an exact study code through a de
 ## Participant-data boundary
 
 The Control Backend stores no participant enrollment records, participant identifiers, or collected study data. Its authentication service may create an anonymous technical account used for study-code resolution; this is not stored as a study enrollment. Enrollments, withdrawals, survey events, HealthKit samples, media metadata, and uploaded files belong in the Study Backend.
-
-!!! warning
-    Never apply Study Backend migrations or generated participant-data SQL to the Control Backend.

@@ -20,8 +20,6 @@ The generated files are tailored to the study's enabled HealthKit identifiers an
 - **File 1, database structure:** the tables, functions, Storage bucket, and identity row the Inoxity app needs to store and sync the study's data.
 - **File 2, security:** row level security, policies, and which functions signed-in participants may call, followed by optional hardening suggestions. Run it after file 1. Don't skip it: without it, Supabase's defaults leave the tables readable by anyone with the project's anon key, which ships inside the app.
 
-Applied together, the two files create exactly the same database as the earlier single setup script.
-
 !!! warning "Important note on security"
     The Inoxity team does not provide or take responsibility for the security of your study's database. Security rules must be developed based on study-specific and institutional policies, so that they align with your study's requirements, including data sensitivity, regulatory compliance (e.g., IRB, HIPAA), and ethical guidelines. The security file is a starting template only: it contains the access rules the Inoxity app needs to work with your database, and your team should review and adapt it. For an overview of how these rules work, see Supabase's [Row Level Security guide](https://supabase.com/docs/guides/database/postgres/row-level-security).
 
@@ -38,7 +36,6 @@ Test the production-configured app on a physical iPhone. Confirm:
 - enrollment and enabled feature data reach only this Study Backend;
 - another anonymous user cannot access the first user's data;
 - expected retries are idempotent;
-- no participant enrollment records, participant identifiers, or collected study data appear in the Control Backend. Its authentication service may contain an anonymous technical account used for study-code resolution.
 
 ## Updating an existing backend
 

@@ -4,7 +4,7 @@
 
 ## Researcher configuration
 
-The See My Data tab must be included in the configured visible tabs. The current app shows it only when HealthKit is enabled and at least one HealthKit identifier is selected. The older `sleepSummaryEnabled` configuration field is retained for compatibility but is not read by the current app.
+The See My Data tab must be included in the configured visible tabs. The current app shows it only when HealthKit is enabled and at least one HealthKit identifier is selected.
 
 ## Separation from research uploads
 

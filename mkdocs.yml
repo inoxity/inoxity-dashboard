@@ -68,9 +68,8 @@ nav:
       - Onboarding: participant-experience/onboarding.md
       - See My Data: participant-experience/see-my-data.md
       - Withdrawal: participant-experience/withdrawal.md
-  - Administration:
+  - Study Backend setup:
       - Supabase setup: administration/supabase-setup.md
-      - Customizing authentication emails: administration/customizing-auth-emails.md
   - Reference:
       - Configuration reference: reference/configuration-reference.md
       - Supported HealthKit data: reference/supported-healthkit-data.md
