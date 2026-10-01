@@ -28,7 +28,7 @@ Each configured type has a dedicated table generated for that study. Samples inc
 
 ## Important limitations
 
-- Collection is currently foreground-driven; documentation in the app repository does not claim continuous background synchronization.
+- Collection is currently foreground-driven; Inoxity does not guarantee continuous background synchronization.
 - Apple Health deletions or later corrections are not mirrored to the Study Backend, so it is not a perfect replica of Apple Health.
 - Clinical Records, Health Documents, ECG, and audiograms are excluded from the supported catalog.
 - The local **See My Data** summaries are a separate feature and are not themselves uploaded.

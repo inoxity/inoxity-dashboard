@@ -90,9 +90,6 @@ Participants do not create conventional email-and-password accounts in the app. 
 | Control Backend | Resolves study codes and supplies configuration/routing metadata; authentication may create an anonymous technical account | No enrollment records, participant identifiers, or collected study data |
 | Study Backend | Stores enrollment, survey events, configured HealthKit samples, media metadata/files, and withdrawal records | Yes; one separate Supabase project per study |
 
-!!! note "Current documentation scope"
-    These pages describe behavior verified in the current public `inoxity-dashboard` and `inoxity-app` repositories. Deployment and institutional operating procedures that are not encoded in those repositories should be reviewed with the Inoxity team.
-
 ## New here?
 
 Read [Before you start](getting-started/before-you-start.md) for what you'll need, check the [FAQ](faq.md), and meet the people behind Inoxity on [About the team](about.md). Inoxity is open source under the BSD 3-Clause License.

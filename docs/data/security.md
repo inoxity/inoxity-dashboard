@@ -1,6 +1,6 @@
 # Security architecture
 
-How participant and researcher data is kept apart across the app and the dashboard: in plain terms first, then the exact files. Compiled by reading both repositories' migrations, RPC definitions, and call sites directly, not from other documentation. Last checked against the source on September 28, 2026.
+How participant and researcher data is kept apart across the app and the dashboard.
 
 ## Key terms
 
@@ -152,41 +152,9 @@ Roughly twenty of these functions exist across both backends, and every one foll
 Four specific decisions beyond "RLS exists".
 
 **Ownership can't be patched in.** *In plain terms: an editor could otherwise slip "make me the owner" into an edit that would technically pass the ID check.* RLS's `with check` alone would let an editor collaborator set `owner_id` to themselves. A separate, independent column-level permission leaves that one column out of what editors can update at all, so no row contents can talk their way around it. Ownership changes only through `transfer_study_ownership()`.
-<br>*Source: `supabase/control_backend/migrations/008_study_collaborators.sql` (app repo)*
 
 **One role, two identities.** *In plain terms: at the database level, a participant and a researcher look identical.* Both sign in as the same generic "authenticated" role, so every policy that needs to tell them apart checks a flag on the sign-in token itself.
-<br>*Source: control backend migrations 005, 008 and 012*
 
 **Sessions are revalidated.** *In plain terms: a login cookie can be copied or faked; checking back with Supabase can't.* The dashboard's middleware always calls `auth.getUser()`, which re-checks with Supabase on every request, rather than `getSession()`, which would trust whatever cookie showed up.
-<br>*Source: `src/lib/supabase/middleware.ts` (dashboard repo)*
 
 **No service-role key, anywhere.** *In plain terms: there's no master key sitting anywhere that could unlock everything at once.* Nothing in the app or dashboard holds Supabase's all-access "service role" key. Privileged actions, like deleting an account or transferring ownership, are narrow single-purpose RPCs instead, so the row-by-row rules are never bypassed wholesale.
-<br>*Source: `.env.example` (dashboard repo), control backend migration 009*
-
-## 5. Found, and already fixed
-
-!!! success "A cross-team credential leak, closed before it mattered"
-    An earlier `study_backends` table stored every team's Supabase URL and anon key, but its select policy let *any* signed-in researcher read it, not just the study's owner. Those credentials now live inside each study's own `configuration_json`, covered by the existing owner-scoped policy on `studies` instead of a separately policed table.
-
-    *Source: `supabase/control_backend/migrations/007_data_backend_in_json.sql` (app repo)*
-
-## 6. One open item
-
-!!! warning "A schema function has drifted from its migration history"
-    `submit_participant_characteristics` and its table exist in the dashboard's SQL generator (what a researcher pastes into a new Study Backend), but were never added as a numbered migration in the app repo's Study Backend template. This isn't a live exposure, since both copies enforce the same checks, but the two are no longer guaranteed to match if one changes without the other.
-
-    *Source: `src/lib/generate-backend-sql.ts` (dashboard repo)*
-
-## 7. Where this lives in the code
-
-Three places, opened with three different tools. The mix-up to watch for: the SQL files sit in the same Git repository as the Xcode project, right next to it on disk, but Xcode never opens or builds them. If you look in Xcode's navigator for the RLS policies or RPC bodies, they won't be there.
-
-| Open in | File | What's there |
-|---|---|---|
-| Xcode | `Inoxity/Backend/Supabase/SupabaseRepositories.swift` | All 11 RPC calls the iOS app makes, in one file, e.g. `resolve_study_bootstrap`, `submit_survey_event` and `submit_healthkit_samples`. |
-| Xcode | `Inoxity/Backend/BackendDomain.swift` | `StudyBackendDescriptor.validated(for:)`: checks that a Study Backend's returned URL and key look real (HTTPS, no placeholder) before the app trusts them. |
-| Xcode | `Config/Secrets.local.xcconfig` (not committed) | The Control Backend's own URL and anon key, built into the app. `Config/Secrets.example.xcconfig` is the committed placeholder. |
-| Xcode | Project navigator → Package Dependencies → supabase-swift | The SDK that provides the `.rpc(…)` method itself: the phone line, not what's said on the call. |
-| Code editor | `inoxity-dashboard/src/lib/supabase/middleware.ts` | The `auth.getUser()` session check that runs on every dashboard page load. |
-| Code editor | `inoxity-dashboard/src/lib/team-actions.ts`, `settings-actions.ts` | The dashboard's own RPC calls: inviting and accepting collaborators, transferring ownership, deleting your account. |
-| Supabase SQL editor | `supabase/control_backend/migrations/*.sql`<br>`supabase/study_backend_template/migrations/*.sql` | The actual RLS policies and RPC function bodies from sections 2 and 3. Each numbered file (a *migration* is one ordered change to the database) is pasted by hand into that Supabase project's SQL editor. None of it is part of an app build. |

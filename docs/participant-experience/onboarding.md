@@ -23,7 +23,7 @@ Depending on configuration, onboarding can contain:
 - Apple Health rationale and authorization;
 - notification rationale and authorization.
 
-The app stores progress locally so an enrolled participant can return without starting over. Local state is scoped by study and versioned for migration.
+The app stores progress locally so an enrolled participant can return without starting over.
 
 ## Permissions
 
@@ -31,7 +31,7 @@ iOS owns Apple Health and notification permissions. Researchers should explain w
 
 ## Researcher checklist
 
-- Test the exact active configuration, not only bundled development fixtures.
+- Test the exact configuration participants will receive.
 - Use a physical iPhone for HealthKit and realistic notification testing.
 - Verify participant-facing wording against approved consent and study materials.
 - Confirm that the identifier format accepts realistic IDs without collecting unnecessary identity data.
