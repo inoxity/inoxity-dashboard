@@ -5,9 +5,14 @@ import { StatusBanner } from "@/components/status-banner";
 
 export default function Home() {
   return (
-    <>
+    // Equal flex spacers above the banner, between it and the logo, and
+    // below the hero, so the banner always sits midway between the top of
+    // the page and the logo regardless of viewport height.
+    <div className="flex flex-1 flex-col">
+      <div className="min-h-10 flex-1" />
       <StatusBanner />
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <div className="min-h-10 flex-1" />
+      <div className="flex flex-col items-center px-6 text-center">
         <div className="flex flex-col items-center gap-1">
           <div className="flex items-center gap-5">
             <span className="h-px w-10 bg-primary/40" />
@@ -49,6 +54,7 @@ export default function Home() {
           </Button>
         </div>
       </div>
-    </>
+      <div className="min-h-10 flex-1" />
+    </div>
   );
 }
