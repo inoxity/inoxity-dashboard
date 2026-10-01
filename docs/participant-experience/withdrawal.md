@@ -4,7 +4,7 @@ The iOS app includes a participant withdrawal flow with two data choices.
 
 ## Keep existing data
 
-The app records the withdrawal request locally and attempts to send it to the Study Backend. When the backend acknowledges a keep-data request, it records the withdrawal and marks the enrollment withdrawn. Existing participant data remains, while new collection stops. Current backend logic can reactivate that enrollment if the participant later reenrolls, preserving the retained history.
+The app records the withdrawal request locally and attempts to send it to the Study Backend. When the backend acknowledges a keep-data request, it records the withdrawal and marks the enrollment withdrawn. Existing participant data remains, while new collection stops. If the participant later rejoins the study, the Study Backend reactivates that same enrollment, so their retained history stays attached. Study Backends set up with older setup files need a one-time update for this; see error [E16](../troubleshooting.md#enrollment-error-codes).
 
 ## Delete existing data
 

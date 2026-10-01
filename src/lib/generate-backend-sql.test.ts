@@ -64,6 +64,17 @@ describe("generateStudyBackendSQL — structure/security split", () => {
 });
 
 describe("generateStudyBackendSQL", () => {
+  it("reactivates a withdrawn enrollment on re-enrollment instead of returning it as-is", () => {
+    const { structure } = generateStudyBackendSQL(config);
+    const fn = structure.slice(
+      structure.indexOf("create or replace function public.register_study_enrollment("),
+      structure.indexOf("create or replace function public.update_sleep_schedule("),
+    );
+    expect(fn).toContain("if found and e.status = 'active' then");
+    expect(fn).toContain("update public.study_enrollments set status='active'");
+    expect(fn).toMatch(/enrolled_at=now\(\)\s+where id = e\.id returning \* into e;/);
+  });
+
   it("ends the security file with the optional hardening suggestions by default", () => {
     const { security } = generateStudyBackendSQL(config);
     expect(security).toContain("OPTIONAL — Extra security hardening suggestions");
