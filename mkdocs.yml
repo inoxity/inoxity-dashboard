@@ -45,6 +45,7 @@ plugins:
 nav:
   - Home: index.md
   - Getting started:
+      - Before you start: getting-started/before-you-start.md
       - Overview: getting-started/overview.md
       - Researcher workflow: getting-started/researcher-workflow.md
       - Creating an account: getting-started/creating-an-account.md
@@ -73,5 +74,7 @@ nav:
   - Reference:
       - Configuration reference: reference/configuration-reference.md
       - Supported HealthKit data: reference/supported-healthkit-data.md
+  - FAQ: faq.md
   - Troubleshooting: troubleshooting.md
   - Glossary: glossary.md
+  - About the team: about.md

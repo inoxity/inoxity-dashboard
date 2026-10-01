@@ -1,38 +1,75 @@
-Update coming soon...
+<p align="center">
+  <img src="public/inoxity-logo.png" alt="Inoxity" width="120" />
+</p>
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<h1 align="center">Inoxity Researcher Dashboard</h1>
 
-## Getting Started
+<p align="center"><em>Durable by design. Open by nature. Driven by curiosity.</em></p>
 
-First, run the development server:
+## Hey there!
+
+Welcome to Inoxity, an open-source research platform for running iPhone studies in people's everyday lives. Inoxity combines Apple Health data (including data from Apple Watch), scheduled surveys and EMA, reminders, and optional photo and video uploads, all configured without writing code.
+
+Each study's participant data goes to a Supabase project that the research team owns and controls. Inoxity never holds it.
+
+This repository is the **Researcher Dashboard**, the website at [inoxity.org](https://www.inoxity.org) where research teams create, configure, and manage their studies. The participant-facing iPhone app lives in [inoxity-app](https://github.com/inoxity/inoxity-app).
+
+> **Status:** Inoxity is undergoing active development and large-scale validation, and will be ready for use soon. [Join the mailing list](https://www.inoxity.org/updates) to hear when it launches, or email Rachael Kee at [rlkee@ucdavis.edu](mailto:rlkee@ucdavis.edu) for early access.
+
+What's in this repo:
+1. **The Researcher Dashboard**: a Next.js web app for creating studies, setting up surveys, reminders, Apple Health data and media collection, inviting collaborators, and activating studies. Before a study goes live, it checks the study the same way the app does when a participant enrolls.
+2. **Study Backend setup files**: for each study, the dashboard generates two SQL files, one for the database structure and one for security. They set up the team's own Supabase project to work with Inoxity.
+3. **The documentation**: the source for the [Inoxity documentation](https://inoxity.readthedocs.io/) on Read the Docs, in [`docs/`](docs/).
+
+---
+
+### Start from Here
+
+New to Inoxity? Start with the documentation:
+
+- [Before you start](https://inoxity.readthedocs.io/en/latest/getting-started/before-you-start/): what you'll need and what to plan before your first study.
+- [Researcher workflow](https://inoxity.readthedocs.io/en/latest/getting-started/researcher-workflow/): a study from setup to participants.
+- [FAQ](https://inoxity.readthedocs.io/en/latest/faq/) and [Troubleshooting](https://inoxity.readthedocs.io/en/latest/troubleshooting/).
+
+---
+
+### For Developers
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # then fill in the values described in the file
+npm run dev                  # http://localhost:3000
+npm test                     # unit tests (Vitest)
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The dashboard is deployed on Vercel. Documentation changes in `docs/` are built by Read the Docs from [`mkdocs.yml`](mkdocs.yml).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### License
 
-## Learn More
+This project is licensed under the [BSD 3-Clause License](LICENSE). See the [LICENSE](LICENSE) file for full terms.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Acknowledgements
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Inoxity was created by **Rachael Kee** (lead developer) with **Laasya Madgula**, in the [Cognitive Communication Science Lab](https://cogcommscience.ucdavis.edu/people) at UC Davis, led by **Richard Huskey**. See [About the team](https://inoxity.readthedocs.io/en/latest/about/).
 
-## Deploy on Vercel
+We're grateful to the following people for their help with Inoxity's development and validation:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Emorie Beck**, Associate Professor, Department of Psychology, University of California, Davis
+- **Allison Eden**, Associate Professor, Department of Communication, Michigan State University
+- **Morgan Ellithorpe**, Associate Professor, Department of Communication, University of Delaware
+- **Ian Kim**, Assistant Professor, School of Kinesiology, University of Michigan
+- **Aaron Luellen**, Independent web developer
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### Contact
+
+For questions about using Inoxity, early access, or collaboration, please contact:
+**Rachael Kee**: [rlkee@ucdavis.edu](mailto:rlkee@ucdavis.edu)
+
+For support with a running study: [inoxity.team@gmail.com](mailto:inoxity.team@gmail.com)
