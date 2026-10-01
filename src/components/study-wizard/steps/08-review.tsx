@@ -4,6 +4,8 @@ import { useFormContext } from "react-hook-form";
 import type { StudyConfiguration } from "@/lib/study-schema";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { checkActivationReadiness } from "@/lib/activation-check";
+import { ActivationChecklist } from "@/components/study-wizard/activation-checklist";
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -17,57 +19,72 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 export function StepReview() {
   const { getValues } = useFormContext<StudyConfiguration>();
   const values = getValues();
+  const readiness = checkActivationReadiness(values);
 
   return (
-    <Tabs defaultValue="summary">
-      <TabsList>
-        <TabsTrigger value="summary">Summary</TabsTrigger>
-        <TabsTrigger value="json">Raw JSON</TabsTrigger>
-      </TabsList>
-      <TabsContent value="summary">
-        <div className="flex flex-col gap-2">
-          <Row label="Display name" value={values.identity.displayName || "—"} />
-          <Row label="Study ID / Code" value={`${values.identity.id || "—"} / ${values.identity.code || "—"}`} />
-          <Row label="Status" value={<Badge>{values.status.state}</Badge>} />
-          <Row
-            label="Schedule"
-            value={
-              values.schedule.openEnded
-                ? "Open-ended"
-                : `${values.schedule.startDate ?? "—"} → ${values.schedule.endDate ?? "—"}`
-            }
-          />
-          <Row
-            label="Participant duration"
-            value={
-              values.schedule.participantDurationDays
-                ? `${values.schedule.participantDurationDays} day(s) per participant`
-                : "Open-ended (no fixed length per participant)"
-            }
-          />
-          <Row label="Onboarding pages" value={`${values.onboarding.pages.length} page(s)`} />
-          <Row
-            label="HealthKit"
-            value={values.healthKit.enabled ? `${values.healthKit.identifiers.length} data type(s)` : "Disabled"}
-          />
-          <Row
-            label="Surveys"
-            value={`${values.surveys.length} survey(s), ${values.surveys.filter((s) => s.sendNotificationOnOpen).length} auto-notify on open`}
-          />
-          <Row label="Reminders" value={`${values.reminders.length} reminder(s)`} />
-          <Row
-            label="Media"
-            value={values.media.enabled ? `${values.media.categories.length} categor(y/ies)` : "Disabled"}
-          />
-          <Row label="FAQs" value={`${values.faqs.length} item(s)`} />
-          <Row label="Support email" value={values.support.email || "—"} />
-        </div>
-      </TabsContent>
-      <TabsContent value="json">
-        <pre className="max-h-[32rem] overflow-auto rounded-lg bg-muted p-4 text-xs">
-          {JSON.stringify(values, null, 2)}
-        </pre>
-      </TabsContent>
-    </Tabs>
+    <div className="flex flex-col gap-6">
+      <div className="rounded-lg border border-border p-4">
+        <p className="text-sm font-medium">Ready to activate?</p>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Checked against the same rules the Inoxity app uses when a participant enrolls. You can still save a
+          draft with open items; they only need fixing before you activate.
+        </p>
+        <ActivationChecklist
+          blockers={readiness.blockers}
+          warnings={readiness.warnings}
+          readyMessage="No problems found. Your Data Backend connection will also be tested when you click Activate."
+        />
+      </div>
+      <Tabs defaultValue="summary">
+        <TabsList>
+          <TabsTrigger value="summary">Summary</TabsTrigger>
+          <TabsTrigger value="json">Raw JSON</TabsTrigger>
+        </TabsList>
+        <TabsContent value="summary">
+          <div className="flex flex-col gap-2">
+            <Row label="Display name" value={values.identity.displayName || "—"} />
+            <Row label="Study ID / Code" value={`${values.identity.id || "—"} / ${values.identity.code || "—"}`} />
+            <Row label="Status" value={<Badge>{values.status.state}</Badge>} />
+            <Row
+              label="Schedule"
+              value={
+                values.schedule.openEnded
+                  ? "Open-ended"
+                  : `${values.schedule.startDate ?? "—"} → ${values.schedule.endDate ?? "—"}`
+              }
+            />
+            <Row
+              label="Participant duration"
+              value={
+                values.schedule.participantDurationDays
+                  ? `${values.schedule.participantDurationDays} day(s) per participant`
+                  : "Open-ended (no fixed length per participant)"
+              }
+            />
+            <Row label="Onboarding pages" value={`${values.onboarding.pages.length} page(s)`} />
+            <Row
+              label="HealthKit"
+              value={values.healthKit.enabled ? `${values.healthKit.identifiers.length} data type(s)` : "Disabled"}
+            />
+            <Row
+              label="Surveys"
+              value={`${values.surveys.length} survey(s), ${values.surveys.filter((s) => s.sendNotificationOnOpen).length} auto-notify on open`}
+            />
+            <Row label="Reminders" value={`${values.reminders.length} reminder(s)`} />
+            <Row
+              label="Media"
+              value={values.media.enabled ? `${values.media.categories.length} categor(y/ies)` : "Disabled"}
+            />
+            <Row label="FAQs" value={`${values.faqs.length} item(s)`} />
+            <Row label="Support email" value={values.support.email || "—"} />
+          </div>
+        </TabsContent>
+        <TabsContent value="json">
+          <pre className="max-h-[32rem] overflow-auto rounded-lg bg-muted p-4 text-xs">
+            {JSON.stringify(values, null, 2)}
+          </pre>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

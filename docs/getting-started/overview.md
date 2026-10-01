@@ -6,7 +6,7 @@ Inoxity separates study management from participant data storage. This is the ke
 
 Researchers use the dashboard to define the study identity, dates, participant identifier rules, onboarding pages, permissions, surveys, reminders, app features, support information, and Study Backend connection. The dashboard validates this configuration and stores it in the Control Backend.
 
-The dashboard also generates a SQL setup script tailored to the study. A research team runs that script in a new Supabase project dedicated to that study.
+The dashboard also generates two SQL setup files tailored to the study: one for the database structure and one for security. A research team runs both, in order, in a new Supabase project dedicated to that study.
 
 ## Participant side
 

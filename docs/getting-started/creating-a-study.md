@@ -18,7 +18,7 @@ The stable study ID is an internal lowercase slug used in configuration and back
 
 ## Active status versus activation
 
-The configuration contains a status such as Active, Paused, or Inactive. The dashboard also has an activation action on the study detail page. Activation requires a confirmed researcher email, an enabled Study Backend descriptor, an Active configuration, and successful dashboard schema validation. It does not test whether the Study Backend is reachable or fully provisioned. Set the configuration status to Active, save it, verify the backend separately, and activate the study before real participants can resolve it.
+The configuration contains a status such as Active, Paused, or Inactive. The dashboard also has an activation action on the study detail page. Activation requires a confirmed researcher email, then runs the same checks the iOS app runs when a participant enrolls: the configuration must be valid, the status must be Active, a Data Backend must be linked, dates must be real calendar dates, and the study end date must not have passed. It then connects to the Study Backend the way the app does and confirms its backend ID, stable study ID, enrollment code, schema version, and active flag match the study. Every problem is listed by wizard step. A start date in the future is allowed, with a warning that participants can't enroll until then. Set the configuration status to Active, save it, and activate the study before real participants can resolve it.
 
 ## After saving
 

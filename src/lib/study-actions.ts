@@ -10,6 +10,8 @@ import {
   type StudyConfiguration,
 } from "@/lib/study-schema";
 import type { ActivateActionState } from "@/lib/study-action-state";
+import { checkActivationReadiness } from "@/lib/activation-check";
+import { checkDataBackendConnection, type BackendCheckResult } from "@/lib/backend-connection-check";
 
 export interface StudyActionResult {
   error: string | null;
@@ -222,6 +224,7 @@ export async function setStudyActive(
   // Unlike updateDraftStudy, we do need `user` here — see the
   // email_confirmed_at check below.
   const { supabase, user } = await requireUser();
+  let backendNotice: string | undefined;
 
   const { data: study, error: fetchError } = await supabase
     .from("studies")
@@ -245,28 +248,28 @@ export async function setStudyActive(
       };
     }
     const config = study.configuration_json as StudyConfiguration;
-    if (!config.dataBackend?.enabled) {
+    // Studies can be saved mid-wizard via saveDraftProgress() without ever passing full schema
+    // validation, so this re-checks everything — the full schema plus the app's own
+    // enrollment-time rules (dates vs. today, Data Backend linked, status "Active") — and lists
+    // every problem by wizard step instead of one generic message.
+    const readiness = checkActivationReadiness(config);
+    if (readiness.blockers.length > 0) {
       return {
-        error:
-          "This study has no Data Backend linked yet — edit the study and add your team's Supabase project details before activating.",
+        error: "This study isn't ready to activate yet. Fix these, then try again:",
+        issues: readiness.blockers,
       };
     }
-    if (config.status.state !== "active") {
+    // Only once everything else checks out: connect to the team's own Supabase project the way
+    // the app does at enrollment, to catch backend ID/URL/key/code typos.
+    const backendCheck = await checkDataBackendConnection(config);
+    if (backendCheck.status === "problem") {
       return {
-        error:
-          'Set the study\'s status to "Active" in the wizard before activating — otherwise the app will reject every participant even though is_active is on.',
+        error: "Your Data Backend doesn't match this study, so participants couldn't enroll. Fix these, then try again:",
+        issues: backendCheck.messages.map((message) => ({ step: "Data Backend", message })),
       };
     }
-    // Studies can now be saved mid-wizard via saveDraftProgress() without
-    // ever passing full schema validation — re-validate the whole config
-    // here so an incomplete draft can never be activated for real
-    // participants just because it happened to have a dataBackend and
-    // status.state === "active" set.
-    if (!studyConfigurationSchema.safeParse(config).success) {
-      return {
-        error:
-          "This study's configuration isn't fully valid yet — open the wizard, go through every step to the Review step, and save it there before activating.",
-      };
+    if (backendCheck.status === "unverified") {
+      backendNotice = `Activated, but the Data Backend connection couldn't be tested: ${backendCheck.message}`;
     }
   }
 
@@ -285,7 +288,7 @@ export async function setStudyActive(
 
   revalidatePath(`/dashboard/studies/${studyId}`);
   revalidatePath("/dashboard");
-  return { error: null };
+  return { error: null, notice: backendNotice };
 }
 
 export async function deleteStudy(
@@ -372,4 +375,12 @@ export async function setStudyArchived(
   revalidatePath(`/dashboard/studies/${studyId}`);
   revalidatePath("/dashboard");
   return { error: null };
+}
+
+// "Test connection" on the Data Backend step — the same live check Activate runs, on the
+// wizard's current (possibly unsaved) values. Signed-in researchers only, since it makes an
+// outbound request from the server.
+export async function testDataBackendConnection(config: StudyConfiguration): Promise<BackendCheckResult> {
+  await requireUser();
+  return checkDataBackendConnection(config);
 }

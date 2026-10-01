@@ -22,7 +22,7 @@ const MEDIA_TYPE_OPTIONS = [
 ];
 
 export function StepFeaturesMedia() {
-  const { control, watch } = useFormContext<StudyConfiguration>();
+  const { control, watch, getValues } = useFormContext<StudyConfiguration>();
   const { fields, append, remove } = useFieldArray({ control, name: "media.categories" });
   const mediaUploadsEnabled = watch("features.mediaUploadsEnabled");
   const mediaEnabled = watch("media.enabled");
@@ -120,7 +120,8 @@ export function StepFeaturesMedia() {
                   id: "",
                   displayName: "",
                   description: "",
-                  acceptedTypes: [],
+                  // Start from the study's own accepted types — the app rejects a category with none.
+                  acceptedTypes: [...getValues("media.acceptedTypes")],
                   required: false,
                   maximumItems: 1,
                   representedDateRequired: false,

@@ -27,11 +27,11 @@ Configuration controls what the participant app displays and does. It does not s
 
 Create a new Supabase project for this study and enable anonymous authentication. In the dashboard's Data Backend step:
 
-1. download the generated setup SQL;
-2. run it in the new project's SQL Editor;
+1. download both generated setup files (database structure, then security);
+2. run file 1 and then file 2 in the new project's SQL Editor;
 3. use the same generated backend UUID in the dashboard and the backend metadata;
 4. enter the project's public URL and anon/publishable key;
-5. verify that the backend metadata schema version matches the configuration.
+5. click **Test connection** to confirm the project matches the study.
 
 See [Supabase setup](../administration/supabase-setup.md) before activating the study.
 
@@ -41,7 +41,7 @@ Use **Research Team** to invite collaborators and assign an Admin, Editor, or Vi
 
 ## 6. Review and activate
 
-Use the wizard's Review step to resolve validation errors. Activation requires a confirmed researcher email, an enabled Study Backend descriptor, an Active configuration, and successful dashboard schema validation. It does not test whether the Study Backend is reachable or fully provisioned. Verify the backend separately, set the configuration status to Active, save it, and then use the study detail page's activation control.
+The wizard's Review step and the study detail page both show a **Ready to activate?** checklist. Activation requires a confirmed researcher email, then runs the same checks the iOS app runs when a participant enrolls: the configuration must be valid, the status must be Active, a Data Backend must be linked, dates must be real calendar dates, and the study end date must not have passed. It then connects to the Study Backend the way the app does and confirms its backend ID, stable study ID, enrollment code, schema version, and active flag match the study. Every problem is listed by wizard step. A start date in the future is allowed, with a warning that participants can't enroll until then. Set the configuration status to Active, save it, and then use the study detail page's activation control.
 
 ## 7. Share the study code
 
