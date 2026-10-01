@@ -19,7 +19,7 @@ When a participant can't join a study, the app shows a short message with a code
 | **E13** | The study's database doesn't match the dashboard. | Compare the dashboard's Data Backend step with the `study_backend_metadata` row: backend UUID, stable study ID, expected study code, and supported configuration schema version must all agree. The schema version doesn't update itself after a dashboard schema change. |
 | **E14** | The app's environment doesn't match the study's Data Backend environment. | The App Store and TestFlight versions of Inoxity always use **Production**, so the study's Data Backend environment must be **Production**. |
 | **E15** | The study's database is marked inactive. | `is_active` on the `study_backend_metadata` row. |
-| **E16** | The participant withdrew earlier and the study's database can't reactivate them. | Email [inoxity.team@gmail.com](mailto:inoxity.team@gmail.com) for the re-enrollment update for your study's database. |
+| **E16** | The participant withdrew earlier and the study's database can't reactivate them. | This shouldn't happen with a correctly set up study. Email [inoxity.team@gmail.com](mailto:inoxity.team@gmail.com) with the copied error details. |
 | **E20** | The study needs a newer version of the app. | The participant should update Inoxity. If they're already on the latest version, the study's configuration schema is newer than the app supports. |
 | **E21** | The study's settings failed the app's checks. | Review the study in the dashboard wizard for invalid or incomplete settings, then save it again. |
 | **E22** | The study has no working Data Backend. | The dashboard's Data Backend step: it must be filled in and enabled. |

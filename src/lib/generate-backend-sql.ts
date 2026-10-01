@@ -126,9 +126,25 @@ language plpgsql security definer set search_path = pg_catalog, public as $$ dec
  -- enrollment_attempt_id's, so a participant retrying with a fresh attempt id
  -- (e.g. local app state was reset but the same anonymous session persisted)
  -- would otherwise hit a raw unique-violation instead of succeeding. Make
- -- registration idempotent per participant: return the existing row if found.
+ -- registration idempotent per participant: return the existing row if it's
+ -- active.
  select * into e from public.study_enrollments where study_enrollments.participant_id = p.id;
+ if found and e.status = 'active' then
+   return query select e.id, e.participant_id, e.status, e.enrolled_at, e.configuration_schema_version, e.configuration_revision;
+   return;
+ end if;
+ -- Withdrawn (a keepExistingData withdrawal): this is a re-enrollment. Returning
+ -- the withdrawn row as-is made the app reject it (BackendError.withdrawnEnrollment),
+ -- blocking re-enrollment for good. Reactivate the same row in place instead —
+ -- participant_id is unique, and keeping the row keeps this enrollment's survey/
+ -- HealthKit history attached, as keepExistingData promised. Mirrors the app
+ -- repo's study_backend_template migration 010_reenrollment_after_withdrawal.
  if found then
+   update public.study_enrollments set status='active', participant_identifier=register_study_enrollment.participant_identifier,
+     enrollment_attempt_id=p_enrollment_attempt_id::uuid, installation_id=register_study_enrollment.installation_id::uuid,
+     configuration_schema_version=register_study_enrollment.configuration_schema_version,
+     configuration_revision=register_study_enrollment.configuration_revision, enrolled_at=now()
+     where id = e.id returning * into e;
    return query select e.id, e.participant_id, e.status, e.enrolled_at, e.configuration_schema_version, e.configuration_revision;
    return;
  end if;
