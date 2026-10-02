@@ -3,6 +3,7 @@ site_description: Researcher guide for configuring and operating Inoxity studies
 site_url: https://inoxity.readthedocs.io/
 repo_url: https://github.com/inoxity/inoxity-dashboard
 repo_name: inoxity/inoxity-dashboard
+copyright: 'Copyright &copy; 2026 Rachael Kee and Laasya Madgula · <a href="https://inoxity.readthedocs.io/en/latest/license/">BSD 3-Clause License</a>'
 docs_dir: docs
 exclude_docs: |
   /customizing-auth-emails.md
@@ -77,3 +78,4 @@ nav:
   - Troubleshooting: troubleshooting.md
   - Glossary: glossary.md
   - About the team: about.md
+  - License: license.md

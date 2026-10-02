@@ -1,3 +1,17 @@
+# License
+
+Inoxity is open source under the **BSD 3-Clause License**.
+
+Copyright (c) 2026, Rachael Kee and Laasya Madgula.
+
+The code lives in two repositories, each with the same license:
+
+- [inoxity-dashboard](https://github.com/inoxity/inoxity-dashboard): the Researcher Dashboard and these docs ([LICENSE](https://github.com/inoxity/inoxity-dashboard/blob/main/LICENSE))
+- [inoxity-app](https://github.com/inoxity/inoxity-app): the participant iPhone app ([LICENSE](https://github.com/inoxity/inoxity-app/blob/main/LICENSE))
+
+## Full license text
+
+```text
 BSD 3-Clause License
 
 Copyright (c) 2026, Rachael Kee and Laasya Madgula
@@ -26,3 +40,4 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
