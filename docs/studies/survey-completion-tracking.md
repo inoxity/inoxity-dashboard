@@ -33,20 +33,13 @@ Do this once for each survey.
 
 1. **Declare the fields.** Open **Survey flow** and click **Add a New Element Here → Embedded Data**. Move the element to the **very top**, above all questions. Add these four fields, exactly as written, and leave their values blank:
 
-    ```
-    inoxity_callback_url
-    inoxity_occurrence_id
-    inoxity_survey_id
-    inoxity_study_id
-    ```
+    --8<-- "generated/surveys/embedded-data-fields.md"
 
     Qualtrics fills them in from the survey link automatically. Click **Apply**.
 
 2. **Redirect at the end.** Open **Survey options → End of survey** (or the **End of Survey** element in the survey flow), choose **Redirect to a URL**, and enter:
 
-    ```
-    ${e://Field/inoxity_callback_url}
-    ```
+    --8<-- "generated/surveys/redirect-value.md"
 
 3. **Publish** the survey. Qualtrics only uses published changes.
 
@@ -63,9 +56,7 @@ You can check the survey tool's setup without the app, a study database, or an e
 
 1. Build a test link. The dashboard's setup panel generates one for you. To build it by hand, add this to the end of your survey link (use `&` instead of the first `?` if the link already contains a `?`):
 
-    ```
-    ?inoxity_study_id=test-study&inoxity_survey_id=test-survey&inoxity_occurrence_id=test-occurrence-1&inoxity_callback_url=https%3A%2F%2Fexample.com%2Fsurvey-done
-    ```
+    --8<-- "generated/surveys/test-link-query.md"
 
     This uses a normal web page, `example.com/survey-done`, in place of the app's return link, so you can see the redirect in any browser.
 

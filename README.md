@@ -43,7 +43,13 @@ npm test                     # unit tests (Vitest)
 npm run lint
 ```
 
-The dashboard is deployed on Vercel. Documentation changes in `docs/` are built by Read the Docs from [`mkdocs.yml`](mkdocs.yml).
+The dashboard is deployed on Vercel. Documentation changes in `docs/` are built by Read the Docs from [`mkdocs.yml`](mkdocs.yml). The docs' code blocks (example configurations, table columns, SQL, Apple Health types) are generated from the source on every build by [`scripts/generate-docs-snippets.ts`](scripts/generate-docs-snippets.ts). To preview the docs locally:
+
+```bash
+npx vite-node scripts/generate-docs-snippets.ts   # writes docs/snippets/generated/
+pip install -r docs/requirements.txt
+mkdocs serve
+```
 
 ---
 

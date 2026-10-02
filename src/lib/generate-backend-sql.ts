@@ -340,14 +340,14 @@ grant execute on function public.submit_survey_event(text,text,text,text,text,te
 // those each have their own, different HealthKit enum, so storing the raw integer rather than
 // hand-maintaining ~30 more text mappings is the only shape that scales. "correlation" bundles
 // two related quantities into one row (currently just blood pressure's systolic/diastolic).
-type HealthKitTableSpec =
+export type HealthKitTableSpec =
   | { identifier: string; table: string; kind: "sleepState" }
   | { identifier: string; table: string; kind: "category" }
   | { identifier: string; table: string; kind: "quantity"; column: string }
   | { identifier: string; table: string; kind: "workout" }
   | { identifier: string; table: string; kind: "correlation"; column: string; secondaryColumn: string };
 
-const HEALTHKIT_TABLE_SPECS: Record<(typeof HEALTHKIT_IDENTIFIERS)[number], HealthKitTableSpec> = {
+export const HEALTHKIT_TABLE_SPECS: Record<(typeof HEALTHKIT_IDENTIFIERS)[number], HealthKitTableSpec> = {
   // Original 10 — table/column names unchanged.
   sleepAnalysis: { identifier: "sleepAnalysis", table: "sleep_samples", kind: "sleepState" },
   stepCount: { identifier: "stepCount", table: "step_count_samples", kind: "quantity", column: "steps" },

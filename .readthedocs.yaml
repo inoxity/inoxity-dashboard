@@ -4,6 +4,12 @@ build:
   os: ubuntu-24.04
   tools:
     python: "3.12"
+    nodejs: "22"
+  jobs:
+    # Code blocks in the docs are generated from the dashboard's source on every build.
+    pre_build:
+      - npm ci --ignore-scripts --no-audit --no-fund
+      - npx vite-node scripts/generate-docs-snippets.ts
 
 mkdocs:
   configuration: mkdocs.yml

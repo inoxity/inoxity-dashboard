@@ -111,6 +111,12 @@ revoke all on function submit_survey_event from public, anon;              -- no
 grant execute on function submit_survey_event to authenticated;           -- except signed-in users, for this one action
 ```
 
+??? example "The real `submit_survey_event` function"
+
+    This is the function exactly as your Study Backend's setup files create it, generated from Inoxity's current code when these docs are built. The highlighted lines are the ones described above: it runs with the function's own permissions, rejects anyone not signed in, and only signed-in users may call it. The checks in between confirm the backend, the participant and the enrollment before anything is written.
+
+    --8<-- "generated/sql/submit_survey_event.md"
+
 Roughly twenty of these functions exist across both backends, and every one follows the same shape: check you're signed in, check you own what you're touching, then do exactly one thing. The main ones:
 
 | Function | Backend | What it does |

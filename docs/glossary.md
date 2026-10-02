@@ -10,7 +10,7 @@ A Supabase public client key. It is protected by row-level security and function
 An immutable saved version of a study's configuration.
 
 **Configuration schema version**
-The format version shared between dashboard-authored configuration, the iOS decoder/validator, and Study Backend metadata. The dashboard currently authors version 8.
+The format version shared between dashboard-authored configuration, the iOS decoder/validator, and Study Backend metadata. The dashboard currently authors version {{ schema_version }}.
 
 **Control Backend**
 The Inoxity-operated Supabase project for researcher accounts, study configuration, collaboration, and study-code routing. It stores no participant enrollments, participant identifiers, or collected study data. Its authentication service may create an anonymous technical account for study-code resolution; this is not a study enrollment.
