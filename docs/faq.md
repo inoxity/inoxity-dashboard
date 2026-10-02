@@ -46,6 +46,16 @@ No. Each study needs its own, new Supabase project. See [How Inoxity fits togeth
 
 ## Running a study
 
+### What should my Supabase project URL look like?
+
+Just the project's address, ending in `.supabase.co`:
+
+```text
+https://abcdefghijklmnop.supabase.co
+```
+
+Copy the **Project URL** from your Supabase project's API settings (or its **Connect** panel) and paste it into the dashboard's Data Backend step as is. Some Supabase pages show a longer address that ends in `/rest/v1/`. If yours does, delete everything after `.supabase.co`: the app and the dashboard add that part themselves, so with it included they can't reach your database. If the URL isn't right, **Test connection** on the Data Backend step will tell you.
+
 ### Why won't my study code enroll anyone?
 
 The study page's **Ready to activate?** checklist and the **Activate** button check the study the same way the app does when a participant enrolls. They list anything that would stop enrollment, such as an end date that has passed, an impossible date, or a Data Backend that doesn't match. If a participant still sees an error, look up its code (E01–E99) in [Troubleshooting](troubleshooting.md).

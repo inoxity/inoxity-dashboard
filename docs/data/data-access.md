@@ -18,6 +18,8 @@ Use the Supabase project associated with the study. Depending on enabled feature
 
 These are the tables your Study Backend uses to store participant data. Find them under **Table Editor** in your Supabase project, or query them in the **SQL Editor**. All times are stored in UTC.
 
+Participants can't write to any of these tables directly: the app saves data only through a few specific database functions, which check who is calling first. Most tables can't be read from the app at all, and the few that can show a participant only their own row. [Security architecture](security.md#2-row-level-security-the-direct-read-layer) explains how each table is protected.
+
 !!! info "Generated from the code"
     The column lists and SQL definitions below are generated from Inoxity's current code every time these docs are built, so they match what the dashboard's setup files create.
 
