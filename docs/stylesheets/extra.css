@@ -465,9 +465,12 @@ body {
   border: 1px solid var(--inoxity-border);
   border-radius: var(--inoxity-radius);
 }
+/* Below ~600px the text gets too small to read, so the card scrolls sideways instead. */
+.md-typeset .security-diagram { overflow-x: auto; }
 .security-diagram svg {
   display: block;
   width: 100%;
+  min-width: 600px;
   height: auto;
   color: var(--inoxity-text);
   font-family: inherit;
@@ -477,19 +480,19 @@ body {
 .security-diagram .box--study { fill: var(--inoxity-surface); stroke-width: 1.8; }
 .security-diagram .box--back { stroke-width: 1; }
 .security-diagram .divider { stroke: currentColor; stroke-width: 0.6; opacity: 0.4; }
-.security-diagram .name { font-size: 13px; font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; }
-.security-diagram .name--lg { font-size: 14px; }
-.security-diagram .sub { font-size: 10.5px; fill: currentColor; opacity: 0.6; }
-.security-diagram .mono { font-size: 10.5px; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; opacity: 0.85; }
-.security-diagram .mono--sm { font-size: 10px; }
-.security-diagram .note { font-size: 10px; fill: currentColor; opacity: 0.55; }
+.security-diagram .name { font-size: 15px; font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; }
+.security-diagram .name--lg { font-size: 16px; }
+.security-diagram .sub { font-size: 12px; fill: currentColor; opacity: 0.6; }
+.security-diagram .mono { font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; opacity: 0.85; }
+.security-diagram .mono--sm { font-size: 11px; }
+.security-diagram .note { font-size: 11.5px; fill: currentColor; opacity: 0.55; }
 .security-diagram .flow { stroke: currentColor; stroke-width: 1.3; fill: none; }
 .security-diagram .flow--data { stroke-width: 1.5; }
 .security-diagram .flow--return { stroke-width: 1.1; stroke-dasharray: 3 4; opacity: 0.75; }
 .security-diagram .flow--setup { stroke-width: 1; stroke-dasharray: 2 5; opacity: 0.45; }
-.security-diagram .label { font-size: 10.5px; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; }
-.security-diagram .label--return { font-size: 10px; opacity: 0.75; }
-.security-diagram .label--quiet { font-size: 9.5px; font-family: inherit; opacity: 0.55; }
+.security-diagram .label { font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; }
+.security-diagram .label--return { font-size: 11.5px; opacity: 0.75; }
+.security-diagram .label--quiet { font-size: 11.5px; opacity: 0.6; }
 
 .md-typeset .security-diagram figcaption {
   max-width: none;
