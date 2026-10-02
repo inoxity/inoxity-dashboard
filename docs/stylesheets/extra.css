@@ -252,15 +252,18 @@ body {
 }
 
 /* Highlighted blocks are a .highlight wrapper around a <pre>: border the wrapper only. */
+/* No overflow: hidden here, or it clips the numbered annotation popups. */
 .md-typeset div.highlight {
   margin: 1em 0;
-  overflow: hidden;
 }
 .md-typeset .highlight pre {
   margin: 0;
   border: 0;
-  border-radius: 0;
+  border-radius: inherit;
   box-shadow: none;
+}
+.md-typeset .highlight pre > code {
+  border-radius: inherit;
 }
 
 .md-typeset__table {
