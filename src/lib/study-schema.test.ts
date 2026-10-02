@@ -4,6 +4,7 @@ import {
   migrateStoredConfiguration,
   HEALTHKIT_IDENTIFIERS,
   HEALTHKIT_CATEGORIES,
+  supabaseUrlPathProblem,
   type StudyConfiguration,
 } from "./study-schema";
 import sleepStudyFixture from "./__fixtures__/sleep-study-sample.json";
@@ -133,6 +134,26 @@ describe("dataBackend non-destructive toggle", () => {
       expect(paths).toContain("dataBackend.backendId");
       expect(paths).toContain("dataBackend.supabaseUrl");
       expect(paths).toContain("dataBackend.supabaseAnonKey");
+    }
+  });
+
+  it("rejects a project URL with /rest/v1/ (or any path) after the domain, saying what to remove", () => {
+    for (const supabaseUrl of ["https://example-study.supabase.co/rest/v1/", "https://example-study.supabase.co/rest/v1", "https://example-study.supabase.co/?x=1"]) {
+      const config = { ...structuredClone(sleepStudyFixture), dataBackend: { ...populatedBackend, supabaseUrl } } as unknown;
+      const result = studyConfigurationSchema.safeParse(config);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const issue = result.error.issues.find((i) => i.path.join(".") === "dataBackend.supabaseUrl");
+        expect(issue?.message).toContain("https://example-study.supabase.co");
+      }
+    }
+    expect(supabaseUrlPathProblem("https://example-study.supabase.co/rest/v1/")).toContain('remove "/rest/v1/"');
+  });
+
+  it("accepts a bare project URL, with or without a trailing slash", () => {
+    for (const supabaseUrl of ["https://example-study.supabase.co", "https://example-study.supabase.co/"]) {
+      const config = { ...structuredClone(sleepStudyFixture), dataBackend: { ...populatedBackend, supabaseUrl } } as unknown;
+      expect(studyConfigurationSchema.safeParse(config).success).toBe(true);
     }
   });
 

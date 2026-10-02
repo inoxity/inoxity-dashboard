@@ -129,6 +129,16 @@ describe("checkDataBackendConnection", () => {
     expect((await checkDataBackendConnection(config)).status).toBe("unverified");
   });
 
+  it("flags a project URL ending in /rest/v1/ without calling it", async () => {
+    const calls = fakeSupabase({});
+    const result = await checkDataBackendConnection({
+      ...config,
+      dataBackend: { ...config.dataBackend!, supabaseUrl: "https://example-project.supabase.co/rest/v1/" },
+    });
+    expect(result).toMatchObject({ status: "problem", messages: [expect.stringContaining('remove "/rest/v1/"')] });
+    expect(calls).toEqual([]);
+  });
+
   it("never calls out to localhost or an IP address", async () => {
     const calls = fakeSupabase({});
     for (const supabaseUrl of ["https://localhost:54321", "https://127.0.0.1", "http://example-project.supabase.co"]) {

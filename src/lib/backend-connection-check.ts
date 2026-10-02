@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { normalizeStudyCode, type StudyConfiguration } from "@/lib/study-schema";
+import { normalizeStudyCode, supabaseUrlPathProblem, type StudyConfiguration } from "@/lib/study-schema";
 
 // Server-only — called from server actions in study-actions.ts, never imported by a client
 // component (it makes outbound requests on the server's behalf).
@@ -62,6 +62,10 @@ export async function checkDataBackendConnection(config: StudyConfiguration): Pr
   const supabaseUrl = backend.supabaseUrl.trim();
   if (!isAllowedBackendUrl(supabaseUrl)) {
     return { status: "problem", messages: ["The Supabase Project URL must be a public https:// address (for example https://your-project.supabase.co)."] };
+  }
+  const pathProblem = supabaseUrlPathProblem(supabaseUrl);
+  if (pathProblem) {
+    return { status: "problem", messages: [pathProblem] };
   }
 
   const supabase = createClient(supabaseUrl, backend.supabaseAnonKey.trim(), {

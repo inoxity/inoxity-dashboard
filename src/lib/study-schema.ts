@@ -408,6 +408,23 @@ const httpOrHttpsUrl = z
     }
   }, "Must be a valid http:// or https:// URL");
 
+// Supabase clients add /rest/v1, /auth/v1 and /storage/v1 to the project URL themselves, so it
+// must be the bare project address. A pasted "https://x.supabase.co/rest/v1/" is still a valid
+// https URL, but every request would then go to ".../rest/v1/rest/v1/..." and fail. Returns a
+// message saying what to remove, or null when the URL has no extra path (or isn't a URL at all,
+// which the format check reports instead).
+export function supabaseUrlPathProblem(value: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch {
+    return null;
+  }
+  const extra = `${url.pathname === "/" ? "" : url.pathname}${url.search}${url.hash}`;
+  if (!extra) return null;
+  return `Use just the project address, ${url.origin} — remove "${extra}" from the end. Inoxity adds that part itself.`;
+}
+
 const httpsUrl = z
   .string()
   .trim()
@@ -805,6 +822,9 @@ export const studyConfigurationSchema = z
       const urlCheck = httpsUrl.safeParse(backend.supabaseUrl);
       if (!urlCheck.success) {
         ctx.addIssue({ code: "custom", path: ["dataBackend", "supabaseUrl"], message: "Must be a valid https:// URL" });
+      } else {
+        const pathProblem = supabaseUrlPathProblem(backend.supabaseUrl);
+        if (pathProblem) ctx.addIssue({ code: "custom", path: ["dataBackend", "supabaseUrl"], message: pathProblem });
       }
       if (backend.supabaseAnonKey.trim().length < 20) {
         ctx.addIssue({

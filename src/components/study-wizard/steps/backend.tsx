@@ -195,6 +195,7 @@ export function StepBackend() {
           <TextField
             name="dataBackend.supabaseUrl"
             label="Supabase Project URL"
+            description="Just the project address, ending in .supabase.co, with nothing after it (no /rest/v1/)."
             placeholder="https://your-project.supabase.co"
           />
           <TextField
