@@ -113,7 +113,7 @@ Click the numbered markers in each example for an explanation of that setting.
 | Selected weekdays | One or more weekdays and a time |
 | Random window | 1–10 windows, start hour, and 1–24 hour window length; total span ≤ 24 hours |
 
-Clock-time schedules use hour/minute. Wake- and bed-relative schedules use an offset between −1,440 and +1,440 minutes and require collected sleep-schedule times.
+Clock-time schedules use hour/minute. Wake- and bed-relative schedules use an offset between −1,440 and +1,440 minutes (positive is after the wake or bed time, negative is before) and require collected sleep-schedule times.
 
 Here's how each pattern is saved. Weekdays are numbered 1 (Sunday) to 7 (Saturday).
 

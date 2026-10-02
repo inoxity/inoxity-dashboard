@@ -114,6 +114,7 @@ const SCHEDULE_EXAMPLES: { tab: string; schedule: unknown }[] = [
     schedule: { pattern: "randomWindow", date: null, weekdays: [], hour: 0, minute: 0, anchor: "clockTime", offsetMinutes: null, windowCount: 4, windowStartHour: 9, windowLengthHours: 3 },
   },
   { tab: "After waking", schedule: { pattern: "daily", date: null, weekdays: [], hour: 0, minute: 0, anchor: "wakeTime", offsetMinutes: 30 } },
+  { tab: "Before bed", schedule: { pattern: "daily", date: null, weekdays: [], hour: 0, minute: 0, anchor: "bedTime", offsetMinutes: -90 } },
 ];
 write(
   "config/schedule-patterns.md",
