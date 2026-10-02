@@ -18,85 +18,64 @@ Four terms come up throughout this page.
 Think of it as two separate buildings. The **Control Backend** is the front office: one shared Supabase project that knows about studies and researcher accounts, but never holds a participant's data. Each research team also runs its own **Study Backend**: a locked records room, in that team's own Supabase project, holding everything participants submit. The app is the only thing that ever visits both buildings.
 
 <figure class="security-diagram" markdown="0">
-<svg viewBox="0 0 900 410" role="img" aria-labelledby="security-diagram-title security-diagram-desc">
+<svg viewBox="0 0 790 340" role="img" aria-labelledby="security-diagram-title security-diagram-desc">
   <title id="security-diagram-title">How the dashboard, app, Control Backend and Study Backends connect</title>
-  <desc id="security-diagram-desc">1: The dashboard reads and writes study settings on the Control Backend, checked by row-level security. 2: The app sends a study code to the Control Backend. 3: The Control Backend returns that study's backend URL and anon key. 4: The app sends all participant data directly to that study's own Study Backend through RPCs. 5: Each Study Backend is set up once, by a researcher pasting generated SQL into it; the platform has no runtime connection to it.</desc>
+  <desc id="security-diagram-desc">The dashboard reads and writes study metadata directly on the Control Backend. The app asks the Control Backend to resolve a study code, which returns that study's own backend URL and anon key; the app then sends all participant data straight to that Study Backend. Study Backends are set up once, out of band, by a researcher pasting a generated SQL script. The platform never connects to them directly.</desc>
   <defs>
-    <marker id="sec-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <marker id="sec-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
     </marker>
   </defs>
 
   <!-- Dashboard -->
-  <rect class="box" x="20" y="70" width="170" height="64" rx="8"/>
-  <text class="name" x="105" y="98" text-anchor="middle">Dashboard</text>
-  <text class="sub" x="105" y="118" text-anchor="middle">researchers</text>
+  <rect class="box" x="10" y="20" width="150" height="58" rx="8"/>
+  <text class="name" x="85" y="45" text-anchor="middle">Dashboard</text>
+  <text class="sub" x="85" y="64" text-anchor="middle">researchers</text>
 
   <!-- iOS app -->
-  <rect class="box" x="20" y="290" width="170" height="64" rx="8"/>
-  <text class="name" x="105" y="318" text-anchor="middle">iOS app</text>
-  <text class="sub" x="105" y="338" text-anchor="middle">participants</text>
+  <rect class="box" x="10" y="270" width="150" height="58" rx="8"/>
+  <text class="name" x="85" y="295" text-anchor="middle">iOS App</text>
+  <text class="sub" x="85" y="314" text-anchor="middle">participants</text>
 
   <!-- Control Backend -->
-  <rect class="box box--control" x="340" y="36" width="220" height="150" rx="8"/>
-  <text class="name" x="450" y="64" text-anchor="middle">Control Backend</text>
-  <text class="sub" x="450" y="82" text-anchor="middle">inoxity_backend · one project</text>
-  <line class="divider" x1="362" y1="96" x2="538" y2="96"/>
-  <text class="mono" x="450" y="118" text-anchor="middle">studies, profiles,</text>
-  <text class="mono" x="450" y="136" text-anchor="middle">study_collaborators</text>
-  <text class="note" x="450" y="166" text-anchor="middle">no participant data</text>
+  <rect class="box box--control" x="320" y="80" width="210" height="140" rx="8"/>
+  <text class="name name--lg" x="425" y="106" text-anchor="middle">Control Backend</text>
+  <text class="sub" x="425" y="124" text-anchor="middle">inoxity_backend · one project</text>
+  <line class="divider" x1="342" y1="136" x2="508" y2="136"/>
+  <text class="mono" x="425" y="156" text-anchor="middle">studies, profiles,</text>
+  <text class="mono" x="425" y="172" text-anchor="middle">study_collaborators</text>
+  <text class="note" x="425" y="202" text-anchor="middle">no participant data</text>
 
-  <!-- Study Backend (one per research team) -->
-  <rect class="box box--back" x="696" y="306" width="186" height="84" rx="8"/>
-  <rect class="box box--back" x="688" y="298" width="186" height="84" rx="8"/>
-  <rect class="box box--study" x="680" y="290" width="186" height="84" rx="8"/>
-  <text class="name" x="773" y="314" text-anchor="middle">Study Backend</text>
-  <text class="sub" x="773" y="331" text-anchor="middle">one per research team</text>
-  <text class="mono" x="773" y="350" text-anchor="middle">participants, surveys,</text>
-  <text class="mono" x="773" y="365" text-anchor="middle">HealthKit samples</text>
+  <!-- Study Backend stack (one per research team) -->
+  <rect class="box box--back" x="616" y="176" width="170" height="92" rx="8" opacity="0.35"/>
+  <rect class="box box--back" x="608" y="168" width="170" height="92" rx="8" opacity="0.6"/>
+  <rect class="box box--study" x="600" y="160" width="170" height="92" rx="8"/>
+  <text class="name" x="685" y="185" text-anchor="middle">Study Backend</text>
+  <text class="sub" x="685" y="203" text-anchor="middle">one per research team</text>
+  <text class="mono mono--sm" x="685" y="223" text-anchor="middle">participants, surveys,</text>
+  <text class="mono mono--sm" x="685" y="238" text-anchor="middle">HealthKit samples</text>
 
-  <!-- 1: Dashboard -> Control Backend -->
-  <line class="flow" x1="190" y1="102" x2="336" y2="102" marker-end="url(#sec-arrow)"/>
-  <text class="label" x="263" y="86" text-anchor="middle">study settings</text>
-  <text class="label label--quiet" x="263" y="126" text-anchor="middle">RLS-checked</text>
+  <!-- Dashboard -> Control Backend -->
+  <line class="flow" x1="160" y1="49" x2="316" y2="105" marker-end="url(#sec-arrow)"/>
+  <text class="label" x="176" y="42">reads/writes (RLS-scoped)</text>
 
-  <!-- 2: app -> Control Backend (study code) -->
-  <line class="flow" x1="130" y1="288" x2="358" y2="191" marker-end="url(#sec-arrow)"/>
-  <text class="label" x="212" y="230" text-anchor="end">study code</text>
+  <!-- App -> Control Backend, and the credentials it returns -->
+  <line class="flow" x1="160" y1="280" x2="316" y2="190" marker-end="url(#sec-arrow)"/>
+  <line class="flow flow--return" x1="316" y1="204" x2="164" y2="292" marker-end="url(#sec-arrow)"/>
+  <text class="label" x="10" y="232">resolve_study_bootstrap(code) →</text>
+  <text class="label label--return" x="10" y="250">← backend url + anon key</text>
 
-  <!-- 3: Control Backend -> app (credentials returned) -->
-  <line class="flow flow--return" x1="412" y1="190" x2="184" y2="287" marker-end="url(#sec-arrow)"/>
-  <text class="label" x="334" y="256">backend URL + anon key</text>
+  <!-- App -> Study Backend -->
+  <line class="flow flow--data" x1="160" y1="314" x2="596" y2="232" marker-end="url(#sec-arrow)"/>
+  <text class="label" x="380" y="264" text-anchor="middle" transform="rotate(-10.65 380 264)">submit_* RPCs (participant data)</text>
 
-  <!-- 4: app -> Study Backend (participant data) -->
-  <line class="flow flow--data" x1="190" y1="322" x2="676" y2="322" marker-end="url(#sec-arrow)"/>
-  <text class="label" x="433" y="306" text-anchor="middle">participant data (submit_* RPCs)</text>
-
-  <!-- 5: one-time setup, no runtime link -->
-  <line class="flow flow--setup" x1="520" y1="186" x2="728" y2="286" marker-end="url(#sec-arrow)"/>
-  <text class="label label--quiet" x="652" y="218">one-time setup</text>
-  <text class="label label--quiet" x="652" y="233">no runtime link</text>
-
-  <!-- Step badges, drawn last so they sit on top of the lines -->
-  <g class="badge"><circle cx="263" cy="102" r="11"/><text x="263" y="106" text-anchor="middle">1</text></g>
-  <g class="badge"><circle cx="226" cy="247" r="11"/><text x="226" y="251" text-anchor="middle">2</text></g>
-  <g class="badge"><circle cx="318" cy="230" r="11"/><text x="318" y="234" text-anchor="middle">3</text></g>
-  <g class="badge"><circle cx="433" cy="322" r="11"/><text x="433" y="326" text-anchor="middle">4</text></g>
-  <g class="badge"><circle cx="624" cy="236" r="11"/><text x="624" y="240" text-anchor="middle">5</text></g>
+  <!-- One-time provisioning, no runtime link -->
+  <line class="flow flow--setup" x1="534" y1="150" x2="596" y2="190" marker-end="url(#sec-arrow)"/>
+  <text class="label label--quiet" x="685" y="132" text-anchor="middle">one-time setup: pasted SQL</text>
+  <text class="label label--quiet" x="685" y="147" text-anchor="middle">no runtime link</text>
 </svg>
-<figcaption>
-<ol class="security-steps">
-  <li><strong>Dashboard → Control Backend.</strong> Researchers read and write study settings. Row-level security limits each researcher to their own studies and the ones they collaborate on.</li>
-  <li><strong>App → Control Backend.</strong> The app sends the study code the participant entered, through the <code>resolve_study_bootstrap</code> RPC.</li>
-  <li><strong>Control Backend → app.</strong> It returns that study's settings plus the URL and anon key of that study's own Study Backend. That's the only thing the Control Backend hands to the app.</li>
-  <li><strong>App → Study Backend.</strong> Everything a participant submits (enrollment, survey events, Apple Health data, media) goes straight to that study's own Study Backend, through its <code>submit_*</code> RPCs. It never passes through the Control Backend.</li>
-  <li><strong>One-time setup.</strong> A researcher creates each Study Backend once, by pasting generated SQL into their own Supabase project, before anyone enrolls. The platform never connects to it at runtime; the Control Backend only stores its URL and anon key.</li>
-</ol>
-<p class="security-key"><span class="key key--solid"></span> request at runtime <span class="key key--dashed"></span> response <span class="key key--dotted"></span> one-time setup, no connection</p>
-</figcaption>
+<figcaption>In plain terms: the app checks in at the front office first ("here's the study code I was given"), gets back the address and key for that one records room, and then goes there directly for everything else. Setting up a new records room happens once, by hand, before any participant enrolls, and the platform's own login never touches it.</figcaption>
 </figure>
-
-In plain terms: the app checks in at the front office first ("here's the study code I was given"), gets back the address and key for that one records room, and then goes there directly for everything else. Setting up a new records room happens once, by hand, before any participant enrolls, and the platform's own login never touches it.
 
 ## 2. Row-level security: the direct-read layer
 
