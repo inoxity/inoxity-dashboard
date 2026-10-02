@@ -54,7 +54,7 @@ Just the project's address, ending in `.supabase.co`:
 https://abcdefghijklmnop.supabase.co
 ```
 
-Copy the **Project URL** from your Supabase project's API settings (or its **Connect** panel) and paste it into the dashboard's Data Backend step as is. Some Supabase pages show a longer address that ends in `/rest/v1/`. If yours does, delete everything after `.supabase.co`: the app and the dashboard add that part themselves, so with it included they can't reach your database. If the URL isn't right, **Test connection** on the Data Backend step will tell you.
+Copy the **Project URL** from your Supabase project's API settings (or its **Connect** panel) and paste it into the dashboard's Data Backend step as is. Some Supabase pages show a longer address that ends in `/rest/v1/`. If yours does, delete everything after `.supabase.co`: the app and the dashboard add that part themselves, so with it included they can't reach your database. If anything is left after `.supabase.co`, the Data Backend step points it out and tells you exactly what to remove.
 
 ### Why won't my study code enroll anyone?
 
