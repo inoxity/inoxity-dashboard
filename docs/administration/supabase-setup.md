@@ -15,6 +15,22 @@ Each real study needs a new Supabase project used only as that study's Study Bac
 9. Use **Test connection** on the Data Backend step to confirm the project matches the study.
 10. Run verification with disposable test participants before production use.
 
+## The study_backend_metadata table
+
+File 1 creates this one-row table, which tells the app which study this backend belongs to. Steps 6 and 8 above are about its values. When a participant enrolls, the app checks them against the study's settings in the dashboard, and refuses to send data if they don't match.
+
+--8<-- "generated/tables/study_backend_metadata.md"
+
+To check the values after running both files, run this in the SQL Editor and compare the result with the study in the dashboard:
+
+--8<-- "generated/queries/check-backend-identity.md"
+
+??? note "SQL definition"
+
+    --8<-- "generated/sql/study_backend_metadata.md"
+
+## What the setup files contain
+
 The generated files are tailored to the study's enabled HealthKit identifiers and media setting:
 
 - **File 1, database structure:** the tables, functions, Storage bucket, and identity row the Inoxity app needs to store and sync the study's data.
@@ -25,7 +41,7 @@ The generated files are tailored to the study's enabled HealthKit identifiers an
 
 ## Schema-version check
 
-The dashboard currently creates schema version 8 configurations, and the app accepts versions 2 through 8. A new backend should declare support for the actual active configuration version. The metadata does not update automatically when the dashboard schema version changes.
+The dashboard currently creates schema version {{ schema_version }} configurations, and the app accepts versions 2 through {{ schema_version }}. A new backend should declare support for the actual active configuration version. The metadata does not update automatically when the dashboard schema version changes.
 
 ## Testing
 

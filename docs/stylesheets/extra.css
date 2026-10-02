@@ -33,6 +33,21 @@
   --md-typeset-a-color: var(--inoxity-teal);
   --md-code-bg-color: var(--inoxity-code);
   --md-code-fg-color: #f3edf5;
+  /* Syntax highlighting in the product palette */
+  --md-code-hl-color: rgba(130, 216, 216, 0.5);
+  --md-code-hl-color--light: rgba(130, 216, 216, 0.12);
+  --md-code-hl-keyword-color: var(--inoxity-pink);
+  --md-code-hl-name-color: #f3edf5;
+  --md-code-hl-string-color: var(--inoxity-teal);
+  --md-code-hl-number-color: #f7c9a1;
+  --md-code-hl-constant-color: #f7c9a1;
+  --md-code-hl-special-color: var(--inoxity-pink);
+  --md-code-hl-function-color: #d6b8f0;
+  --md-code-hl-operator-color: var(--inoxity-muted);
+  --md-code-hl-punctuation-color: var(--inoxity-muted);
+  --md-code-hl-comment-color: #968b9e;
+  --md-code-hl-generic-color: var(--inoxity-muted);
+  --md-code-hl-variable-color: #f3edf5;
   --md-footer-bg-color: #180c1e;
   --md-footer-bg-color--dark: #130817;
 }
@@ -236,6 +251,18 @@ body {
   box-shadow: 0 0.5rem 1.5rem rgba(9, 3, 12, 0.12);
 }
 
+/* Highlighted blocks are a .highlight wrapper around a <pre>: border the wrapper only. */
+.md-typeset div.highlight {
+  margin: 1em 0;
+  overflow: hidden;
+}
+.md-typeset .highlight pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .md-typeset__table {
   width: 100%;
 }
@@ -281,6 +308,20 @@ body {
 
 .md-typeset .admonition-title::before,
 .md-typeset summary::before {
+  background-color: var(--inoxity-teal);
+}
+
+/* Material colors these types blue/purple by default; keep them on the site's teal. */
+.md-typeset :is(.admonition, details):is(.note, .info, .example) {
+  border-color: var(--inoxity-border-strong);
+}
+
+.md-typeset :is(.note, .info, .example) > :is(.admonition-title, summary) {
+  background-color: rgba(130, 216, 216, 0.08);
+}
+
+.md-typeset :is(.note, .info, .example) > :is(.admonition-title, summary)::before,
+.md-typeset :is(.note, .info, .example) > summary::after {
   background-color: var(--inoxity-teal);
 }
 

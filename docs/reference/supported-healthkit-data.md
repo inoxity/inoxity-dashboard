@@ -1,61 +1,13 @@
 # Supported Apple Health data
 
-The schema version 8 dashboard and current iOS registry support the identifiers below. Availability still depends on the participant's device, iOS/HealthKit support, recorded data, and granted permission.
+The dashboard (configuration schema version {{ schema_version }}) and the current iOS app support the {{ healthkit_type_count }} Apple Health data types below. Availability still depends on the participant's device, iOS/HealthKit support, recorded data, and granted permission.
 
-## Sleep
+Each type is stored in its own table in your Study Backend. Every table has the same columns (see [Apple Health sample tables](../data/data-access.md#apple-health-sample-tables)) plus the value column listed here.
 
-- Sleep
+!!! info "Generated from the code"
+    These tables are generated from Inoxity's current code every time these docs are built, so a newly supported type appears here automatically.
 
-## Activity and fitness
-
-- Steps; active energy; exercise time; workouts
-- Walking/running, cycling, swimming, and wheelchair distance
-- Flights climbed; push count; swimming strokes; resting energy; stand time
-- Walking speed, step length, asymmetry, and double-support percentage
-- Six-minute walk distance; stair ascent and descent speed
-
-## Heart and vitals
-
-- Resting heart rate; heart rate; heart-rate variability; respiratory rate
-- Blood oxygen; blood glucose; blood pressure
-- Forced vital capacity; forced expiratory volume; peak expiratory flow
-- Inhaler usage; insulin delivery; falls
-- High-heart-rate, low-heart-rate, and irregular-rhythm events
-
-## Body measurements
-
-- Height; body mass; body-mass index; lean body mass; body-fat percentage
-- Waist circumference; body temperature; basal body temperature; electrodermal activity
-
-## Hearing and environment
-
-- Environmental sound and headphone audio exposure
-- Time in daylight; UV exposure; water temperature; underwater depth
-
-## Nutrition
-
-- Energy, protein, carbohydrates, fiber, sugar
-- Total, saturated, monounsaturated, and polyunsaturated fat; cholesterol
-- Sodium, potassium, calcium, iron, magnesium, zinc
-- Vitamins A, C, D, E, K, B6, and B12
-- Caffeine and water
-
-## Mindfulness
-
-- Mindful minutes
-
-## Reproductive health
-
-- Menstrual flow; intermenstrual bleeding; sexual activity; ovulation test result
-- Contraceptive use; pregnancy; pregnancy test result; lactation; cervical mucus quality
-
-## Symptoms
-
-- Abdominal cramps; bloating; constipation; diarrhea; dizziness; fatigue; fever
-- Generalized body ache; headache; heartburn; loss of smell; loss of taste; nausea
-- Rapid or fluttering heartbeat; runny nose; shortness of breath; sinus congestion; sore throat
-- Vomiting; wheezing; coughing; chills; chest tightness or pain
-- Mood changes; sleep changes; memory lapse; hot flashes; lower-back pain; appetite changes; bladder incontinence
+--8<-- "generated/healthkit/categories.md"
 
 ## Exclusions and special cases
 

@@ -7,6 +7,7 @@ copyright: 'Copyright &copy; 2026 Rachael Kee and Laasya Madgula · <a href="htt
 docs_dir: docs
 exclude_docs: |
   /customizing-auth-emails.md
+  /snippets/
 strict: true
 
 theme:
@@ -26,6 +27,8 @@ theme:
     - search.highlight
     - search.suggest
     - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
 
 extra_css:
   - stylesheets/extra.css
@@ -35,13 +38,27 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  # Code blocks generated from the dashboard's source by scripts/generate-docs-snippets.ts.
+  - pymdownx.snippets:
+      base_path: [docs/snippets]
+      check_paths: true
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - tables
   - toc:
       permalink: true
 
 plugins:
   - search
+
+hooks:
+  - hooks/inoxity_values.py
 
 nav:
   - Home: index.md

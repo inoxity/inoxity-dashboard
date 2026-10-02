@@ -21,7 +21,7 @@ The study configuration is the contract between the researcher dashboard and par
 
 A study can be open-ended or use a participant duration. For fixed-duration studies, the app calculates progress and can show the configured completion screen after the duration elapses.
 
-Schema version 8 supports three start-date modes:
+Schema version {{ schema_version }} supports three start-date modes:
 
 - **Enrollment:** each participant's day 1 begins when they enroll.
 - **Fixed:** every participant uses the configured calendar start date.
