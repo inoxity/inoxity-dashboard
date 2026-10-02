@@ -92,4 +92,4 @@ Participants do not create conventional email-and-password accounts in the app. 
 
 ## New here?
 
-Read [Before you start](getting-started/before-you-start.md) for what you'll need, check the [FAQ](faq.md), and meet the people behind Inoxity on [About the team](about.md). Inoxity is open source under the BSD 3-Clause License.
+Read [Before you start](getting-started/before-you-start.md) for what you'll need, check the [FAQ](faq.md), and meet the people behind Inoxity on [About the team](about.md). Inoxity is open source under the [BSD 3-Clause License](license.md).

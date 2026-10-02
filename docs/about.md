@@ -54,7 +54,7 @@ We're grateful to the following people for their help with Inoxity's development
 
 ## License
 
-Inoxity's source code is open source under the [BSD 3-Clause License](https://github.com/inoxity/inoxity-dashboard/blob/main/LICENSE). The code lives in two repositories: [inoxity-dashboard](https://github.com/inoxity/inoxity-dashboard) (the Researcher Dashboard and these docs) and [inoxity-app](https://github.com/inoxity/inoxity-app) (the participant iPhone app).
+Inoxity's source code is open source under the [BSD 3-Clause License](license.md), copyright (c) 2026 Rachael Kee and Laasya Madgula. The code lives in two repositories: [inoxity-dashboard](https://github.com/inoxity/inoxity-dashboard) (the Researcher Dashboard and these docs) and [inoxity-app](https://github.com/inoxity/inoxity-app) (the participant iPhone app).
 
 ## Contact
 

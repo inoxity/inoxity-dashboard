@@ -20,7 +20,7 @@ No. The participant app is for iPhone (iOS 17 or later). Apple Watch data is col
 
 ### Is Inoxity open source?
 
-Yes, under the BSD 3-Clause License. The code is on GitHub in [inoxity-dashboard](https://github.com/inoxity/inoxity-dashboard) and [inoxity-app](https://github.com/inoxity/inoxity-app). See [About the team](about.md).
+Yes, under the [BSD 3-Clause License](license.md). The code is on GitHub in [inoxity-dashboard](https://github.com/inoxity/inoxity-dashboard) and [inoxity-app](https://github.com/inoxity/inoxity-app). See [About the team](about.md).
 
 ## Data and security
 

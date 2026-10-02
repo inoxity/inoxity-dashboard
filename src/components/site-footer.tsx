@@ -31,6 +31,17 @@ export function SiteFooter() {
             inoxity.team@gmail.com
           </a>
         </div>
+        <p className="w-full text-xs">
+          © 2026 Rachael Kee and Laasya Madgula ·{" "}
+          <a
+            href="https://inoxity.readthedocs.io/en/latest/license/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            BSD 3-Clause License
+          </a>
+        </p>
       </div>
     </footer>
   );
