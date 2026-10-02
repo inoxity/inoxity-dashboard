@@ -79,7 +79,7 @@ Think of it as two separate buildings. The **Control Backend** is the front offi
 
 ## 2. Row-level security: the direct-read layer
 
-Row-level security is the "every row checks ID" rule from the key terms. It covers the simple case: a person reading or managing their own row and nothing else. It's deliberately not asked to do the harder work of writing sensitive data; that's section 3.
+Row-level security is the "every row checks ID" rule from the key terms. It covers the simple case: a person reading or managing their own row and nothing else. It's deliberately not asked to do the harder work of writing sensitive data; that's section 3. For what each Study Backend table holds, column by column, see [What's in each table](data-access.md#whats-in-each-table).
 
 | Backend | Table | Policy | Rule |
 |---|---|---|---|

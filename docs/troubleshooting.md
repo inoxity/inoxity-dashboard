@@ -13,7 +13,7 @@ When a participant can't join a study, the app shows a short message with a code
 | **E05** | Enrollment hasn't opened yet, or the study hasn't started. | The study's enrollment window and start date in the dashboard. |
 | **E06** | Enrollment has closed. | The study's enrollment window in the dashboard. |
 | **E07** | The Inoxity server refused the request (permissions). | This is on the Inoxity side, not your study. Email [inoxity.team@gmail.com](mailto:inoxity.team@gmail.com) with the copied error details. |
-| **E10** | The study's own database isn't responding. | The **study's** Supabase project. The most common cause is that **the project is paused**: open it in Supabase and click **Restore project**. Also check the project URL in the dashboard's Data Backend step. |
+| **E10** | The study's own database isn't responding. | The **study's** Supabase project. The most common cause is that **the project is paused**: open it in Supabase and click **Restore project**. Also check the project URL in the dashboard's Data Backend step: it should end in `.supabase.co`, with nothing (such as `/rest/v1/`) after it. |
 | **E11** | Anonymous sign-in is turned off in the study's database. | Study Supabase project → **Authentication → Sign In / Providers → Allow anonymous sign-ins**. |
 | **E12** | The study's database setup is incomplete: a required table or function is missing, or the identity row was never inserted. | Rerun the missing parts of the study's setup files (the Data Backend step's two downloads), including the identity row. The copied details name what's missing. |
 | **E13** | The study's database doesn't match the dashboard. | Compare the dashboard's Data Backend step with the `study_backend_metadata` row: backend UUID, stable study ID, expected study code, and supported configuration schema version must all agree. The schema version doesn't update itself after a dashboard schema change. |
@@ -23,7 +23,7 @@ When a participant can't join a study, the app shows a short message with a code
 | **E20** | The study needs a newer version of the app. | The participant should update Inoxity. If they're already on the latest version, the study's configuration schema is newer than the app supports. |
 | **E21** | The study's settings failed the app's checks. | Review the study in the dashboard wizard for invalid or incomplete settings, then save it again. |
 | **E22** | The study has no working Data Backend. | The dashboard's Data Backend step: it must be filled in and enabled. |
-| **E23** | The Data Backend's URL or key is malformed. | The project URL (must be `https://…supabase.co`) and anon key in the dashboard's Data Backend step. |
+| **E23** | The Data Backend's URL or key is malformed. | The project URL (must be `https://…supabase.co`, with nothing such as `/rest/v1/` after it) and anon key in the dashboard's Data Backend step. See [What should my Supabase project URL look like?](faq.md#what-should-my-supabase-project-url-look-like) |
 | **E24** | The app build is missing the Inoxity server settings. | Ask the participant to update Inoxity from the App Store. If it continues, email [inoxity.team@gmail.com](mailto:inoxity.team@gmail.com). |
 | **E99** | Something else went wrong. | Read the copied details: they contain the server's own error text. |
 

@@ -8,6 +8,8 @@ Inoxity was developed in the [Cognitive Communication Science Lab](https://cogco
 
 <div class="inoxity-feature-card" markdown>
 
+<a href="https://rachaelkee.com"><img class="inoxity-team-photo" src="../images/team/rachael-kee.jpg" alt="Rachael Kee"></a>
+
 <span class="inoxity-step">Creator and lead developer</span>
 
 <strong class="inoxity-feature-title">Rachael Kee</strong>
@@ -20,6 +22,8 @@ PhD Candidate, Department of Communication, UC Davis, and a member of the Cognit
 
 <div class="inoxity-feature-card" markdown>
 
+<img class="inoxity-team-photo" src="../images/team/laasya-madgula.jpg" alt="Laasya Madgula">
+
 <span class="inoxity-step">Undergraduate research assistant</span>
 
 <strong class="inoxity-feature-title">Laasya Madgula</strong>
@@ -30,13 +34,15 @@ Undergraduate Research Assistant (Fall 2025 – Summer 2026); graduated from UC 
 
 <div class="inoxity-feature-card" markdown>
 
+<a href="https://cogcommscience.ucdavis.edu/people/richard-huskey"><img class="inoxity-team-photo" src="../images/team/richard-huskey.jpg" alt="Richard Huskey"></a>
+
 <span class="inoxity-step">Principal investigator</span>
 
 <strong class="inoxity-feature-title">Richard Huskey, PhD</strong>
 
 Associate Professor, Department of Communication and Cognitive Science Program, UC Davis, and principal investigator of the Cognitive Communication Science Lab.
 
-[Lab people page](https://cogcommscience.ucdavis.edu/people)
+[Lab profile](https://cogcommscience.ucdavis.edu/people/richard-huskey)
 
 </div>
 

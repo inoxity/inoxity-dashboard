@@ -411,6 +411,16 @@ body {
   box-shadow: 0 0.65rem 1.6rem rgba(8, 2, 11, 0.11);
 }
 
+.md-typeset .inoxity-team-photo {
+  display: block;
+  width: 100%;
+  max-width: 12rem;
+  aspect-ratio: 1;
+  object-fit: cover;
+  margin: 0 0 0.9rem;
+  border-radius: calc(var(--inoxity-radius) - 0.2rem);
+}
+
 .inoxity-feature-title {
   display: block;
   margin: 0.45rem 0 0.35rem;
